@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Threading;
 using DavidLievrouw.Utils;
 using ProjectionSystem.Samples.Departments.Items;
 
@@ -46,14 +46,14 @@ namespace ProjectionSystem.Samples.Departments {
       };
     }
 
-    public Task<IEnumerable<Department>> GetProjection() {
-      return Task.FromResult(_projection);
+    public IEnumerable<Department> GetProjection() {
+      return _projection;
     }
 
-    public async Task RefreshProjection() {
+    public void RefreshProjection() {
       // Fake update the projection
       var randomDelayMillis = new Random().Next(500, 10000);
-      await Task.Delay(randomDelayMillis);
+      Thread.Sleep(randomDelayMillis);
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;
       }

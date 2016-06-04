@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
   public class CurrentState<TItem> : ProjectionSystemState<TItem> where TItem : IProjectedItem {
@@ -18,10 +17,8 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Current;
 
-    public override Task Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
+    public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      if (projectionSystem.State.Id == Id) Task.FromResult(true);
-
       StateTransitionGuard(
         new[] { StateId.Maintaining },
         projectionSystem.State.Id);
@@ -30,12 +27,10 @@ namespace ProjectionSystem.States {
         projectionSystem.EnterState(new ExpiredState<TItem>(_projectedData));
         _timer.Dispose();
       }, null, (int)_timeout.TotalMilliseconds, Timeout.Infinite);
-
-      return Task.FromResult(true);
     }
 
-    public override Task<IEnumerable<TItem>> GetProjectedData() {
-      return Task.FromResult(_projectedData);
+    public override IEnumerable<TItem> GetProjectedData() {
+      return _projectedData;
     }
   }
 }

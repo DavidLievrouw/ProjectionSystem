@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace ProjectionSystem {
   public interface IProjectionDataService {
-    Task RefreshProjection();
+    void RefreshProjection();
   }
 
-  public interface IProjectionDataService<TItem> : IProjectionDataService
+  public interface IProjectionDataService<out TItem> : IProjectionDataService
     where TItem : IProjectedItem {
-    Task<IEnumerable<TItem>> GetProjection();
+    IEnumerable<TItem> GetProjection();
   }
 }

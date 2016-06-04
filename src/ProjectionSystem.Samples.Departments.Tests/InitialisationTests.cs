@@ -28,7 +28,7 @@ namespace ProjectionSystem.Samples.Departments {
       var threads = new List<Thread>();
       for (var i = 0; i < 3; i++) threads.Add(new Thread(() => {
         try {
-          var departments = _sut.GetProjectedDepartments().Result;
+          var departments = _sut.GetProjectedDepartments();
           Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
         } catch (Exception ex) {
           Assert.Fail(ex.ToString());
@@ -39,12 +39,12 @@ namespace ProjectionSystem.Samples.Departments {
     }
 
     [Test]
-    public async Task WhenExpired_OneThreadRefreshesData_AndOtherThreadsReturnOldData() {
-      var originalDepartments = await _sut.GetProjectedDepartments();
+    public void WhenExpired_OneThreadRefreshesData_AndOtherThreadsReturnOldData() {
+      var originalDepartments = _sut.GetProjectedDepartments();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(1)));
       var threads = new List<Thread>();
       for (var i = 0; i < 3; i++) threads.Add(new Thread(() => {
-        var departments = _sut.GetProjectedDepartments().Result;
+        var departments = _sut.GetProjectedDepartments();
         Console.WriteLine($"Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
       }));
       threads.ForEach(t => t.Start());

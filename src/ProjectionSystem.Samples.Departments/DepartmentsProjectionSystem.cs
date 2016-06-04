@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
 
@@ -17,13 +16,13 @@ namespace ProjectionSystem.Samples.Departments {
       State = new ExpiredState(null); // Initialise to expired
     }
 
-    public async Task<IEnumerable<Department>> GetProjectedDepartments() {
+    public IEnumerable<Department> GetProjectedDepartments() {
       if (State.Id == StateId.Expired) {
-        var currentData = await State.GetProjectedData();
-        await EnterState(new MaintainingState(currentData, _expiration, _departmentsProjectionDataService));
+        var currentData = State.GetProjectedData();
+        EnterState(new MaintainingState(currentData, _expiration, _departmentsProjectionDataService));
       }
 
-      return await State.GetProjectedData();
+      return State.GetProjectedData();
     }
   }
 }
