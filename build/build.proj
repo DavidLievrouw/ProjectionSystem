@@ -40,7 +40,7 @@
 	<AssemblyInfo CodeLanguage="CS"
                   OutputFile="$(SourceDirectory)\GlobalAssemblyInfo.cs"
 				  AssemblyDescription="This .NET assembly is part of the $(ProductName) project."
-                  AssemblyCopyright="Created by David Lievrou in $(Year), License: MIT"
+                  AssemblyCopyright="Created by David Lievrouw in $(Year), License: MIT"
                   AssemblyConfiguration="$(BuildConfiguration)"
                   AssemblyVersion="$(ProductVersion)"
                   AssemblyFileVersion="$(ProductVersion)"

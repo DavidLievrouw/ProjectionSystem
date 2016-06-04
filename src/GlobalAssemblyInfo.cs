@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 [assembly: System.Reflection.AssemblyDescription("This .NET assembly is part of the ProjectionSystem project.")]
-[assembly: System.Reflection.AssemblyCopyright("Created by David Lievrou in 2016, License: MIT")]
+[assembly: System.Reflection.AssemblyCopyright("Created by David Lievrouw in 2016, License: MIT")]
 [assembly: System.Reflection.AssemblyConfiguration("Release")]
 [assembly: System.Reflection.AssemblyVersion("0.1.0.0")]
 [assembly: System.Reflection.AssemblyFileVersion("0.1.0.0")]
