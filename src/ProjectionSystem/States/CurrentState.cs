@@ -4,14 +4,12 @@ using System.Threading;
 
 namespace ProjectionSystem.States {
   public class CurrentState<TItem> : ProjectionSystemState<TItem> where TItem : IProjectedItem {
-    readonly IEnumerable<TItem> _projectedData;
     readonly TimeSpan _timeout;
     Timer _timer;
+    IEnumerable<TItem> _projectedData;
 
-    public CurrentState(IEnumerable<TItem> projectedData, TimeSpan timeout) {
-      if (projectedData == null) throw new ArgumentNullException(nameof(projectedData));
+    public CurrentState(TimeSpan timeout) {
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
-      _projectedData = projectedData;
       _timeout = timeout;
     }
 
@@ -19,12 +17,15 @@ namespace ProjectionSystem.States {
 
     public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+      if (projectionSystem.State.Id == Id) return; // Some other thread has already marked the projection as 'Current'
       StateTransitionGuard(
-        new[] { StateId.Maintaining },
+        new[] { StateId.Updating },
         projectionSystem.State.Id);
 
+      _projectedData = previousState.GetProjectedData();
+
       _timer = new Timer(_ => {
-        projectionSystem.EnterState(new ExpiredState<TItem>(_projectedData));
+        projectionSystem.SwitchToExpiredState();
         _timer.Dispose();
       }, null, (int)_timeout.TotalMilliseconds, Timeout.Infinite);
     }

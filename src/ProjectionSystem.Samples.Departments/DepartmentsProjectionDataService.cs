@@ -52,11 +52,12 @@ namespace ProjectionSystem.Samples.Departments {
 
     public void RefreshProjection() {
       // Fake update the projection
-      var randomDelayMillis = new Random().Next(500, 10000);
+      var randomDelayMillis = new Random().Next(500, 3000);
       Thread.Sleep(randomDelayMillis);
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;
       }
+      Console.WriteLine("Refreshed projection");
     }
   }
 }

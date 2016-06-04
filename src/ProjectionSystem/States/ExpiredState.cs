@@ -4,11 +4,7 @@ using System.Collections.Generic;
 namespace ProjectionSystem.States {
   public class ExpiredState<TItem> : ProjectionSystemState<TItem>
     where TItem : IProjectedItem {
-    readonly IEnumerable<TItem> _projectedData;
-
-    public ExpiredState(IEnumerable<TItem> invalidData) {
-      _projectedData = invalidData; // Can be null the first time
-    }
+    IEnumerable<TItem> _projectedData;
 
     public override StateId Id => StateId.Expired;
 
@@ -18,6 +14,8 @@ namespace ProjectionSystem.States {
       StateTransitionGuard(
         new[] { StateId.Current },
         projectionSystem.State.Id);
+
+      _projectedData = previousState.GetProjectedData(); // Can be null the first time
     }
 
     public override IEnumerable<TItem> GetProjectedData() {

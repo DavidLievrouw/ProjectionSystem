@@ -5,23 +5,12 @@ using ProjectionSystem.States;
 
 namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionSystem : ProjectionSystem<Department> {
-    readonly IProjectionDataService<Department> _departmentsProjectionDataService;
-    readonly TimeSpan _expiration;
-
-    public DepartmentsProjectionSystem(IProjectionDataService<Department> departmentsProjectionDataService, TimeSpan expiration) {
-      if (departmentsProjectionDataService == null) throw new ArgumentNullException(nameof(departmentsProjectionDataService));
-      if (expiration <= TimeSpan.Zero) throw new ArgumentException("An invalid projection expiration has been specified.", nameof(expiration));
-      _departmentsProjectionDataService = departmentsProjectionDataService;
-      _expiration = expiration;
-      State = new ExpiredState(null); // Initialise to expired
+    public DepartmentsProjectionSystem(TimeSpan expiration, IProjectionDataService<Department> departmentsProjectionDataService) : base(expiration, departmentsProjectionDataService) {
+      State = new ExpiredState(); // Initialise to expired
     }
 
     public IEnumerable<Department> GetProjectedDepartments() {
-      if (State.Id == StateId.Expired) {
-        var currentData = State.GetProjectedData();
-        EnterState(new MaintainingState(currentData, _expiration, _departmentsProjectionDataService));
-      }
-
+      if (State.Id == StateId.Expired) SwitchToUpdatingState();
       return State.GetProjectedData();
     }
   }

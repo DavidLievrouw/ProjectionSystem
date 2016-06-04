@@ -54,7 +54,7 @@
     <Compile Include="DepartmentsProjectionSystem.cs" />
     <Compile Include="DepartmentsProjectionDataService.cs" />
     <Compile Include="ExpiredState.cs" />
-    <Compile Include="MaintainingState.cs" />
+    <Compile Include="UpdatingState.cs" />
     <Compile Include="Items\PhoneType.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -3,10 +3,9 @@
 namespace ProjectionSystem {
   public interface IProjectionSystem {
     IProjectionSystemState State { get; }
-    void EnterState(IProjectionSystemState state);
   }
 
-  public interface IProjectionSystem<TItem> : IProjectionSystem
+  public interface IProjectionSystem<TItem> : IProjectionSystem, IProjectionSystemStateSwitcher
     where TItem : IProjectedItem {
     new IProjectionSystemState<TItem> State { get; }
   }
