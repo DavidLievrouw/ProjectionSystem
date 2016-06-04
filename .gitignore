@@ -196,4 +196,4 @@ FakesAssemblies/
 
 # Custom
 build/log
-build/target
+build/output

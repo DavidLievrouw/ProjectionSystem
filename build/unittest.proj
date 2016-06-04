@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="UnitTest" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <RootPath>$(MSBuildProjectDirectory)\..</RootPath>
+    <SourceDirectory>$(RootPath)\src</SourceDirectory>
+    <BuildDirectory>$(RootPath)\build</BuildDirectory>
+	<ResultsOutputPath>$(BuildDirectory)\log</ResultsOutputPath>
+    <PackagesPath>$(BuildDirectory)\packages</PackagesPath>
+	<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
+    <MSBuildCommunityTasksPath>$(PackagesPath)\MSBuildTasks.1.5.0.196\tools</MSBuildCommunityTasksPath>
+	<NUnitPath>$(PackagesPath)\NUnit.ConsoleRunner.3.2.1\tools</NUnitPath>
+	<VisualStudioVersion Condition="'$(VisualStudioVersion)'==''">14.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
+  
+  <Target Name="SetVisualStudioVersion">
+    <PropertyGroup>
+	  <VisualStudioVersion Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v12.0')">12.0</VisualStudioVersion>
+	  <VisualStudioVersion Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v14.0')">14.0</VisualStudioVersion>
+	</PropertyGroup>
+	<Message Text="Using Visual Studio version '$(VisualStudioVersion)'." />
+  </Target>
+  
+  <Target Name="Build" DependsOnTargets="SetVisualStudioVersion">
+    <MSBuild 
+      Projects="$(SourceDirectory)\ProjectionSystem.Tests\ProjectionSystem.Tests.csproj;"
+	  Targets="Build"
+      Properties="Configuration=$(Configuration);VisualStudioVersion=$(VisualStudioVersion)"
+      StopOnFirstFailure="true"
+      ContinueOnError="false"
+      BuildInParallel="false" />
+  </Target>
+  
+  <Target Name="UnitTestNET" DependsOnTargets="Build">
+    <CreateItem Include="$(SourceDirectory)\ProjectionSystem.Tests\bin\$(Configuration)\ProjectionSystem.Tests.dll;">
+      <Output TaskParameter="Include" ItemName="NUnitTestAssemblies" />
+    </CreateItem>
+    
+	<NUnit3
+      Assemblies="@(NUnitTestAssemblies)"
+      ToolPath="$(NUnitPath)"
+      Framework="v4.5"
+	  Workers="4"
+      ContinueOnError="true"
+      OutputXmlFile="$(ResultsOutputPath)\nunit-unittests.xml" />
+    <Message Text="##teamcity[importData type='nunit' path='$(ResultsOutputPath)\nunit-unittests.xml']"/>
+  </Target>
+  
+  <Target Name="UnitTest" DependsOnTargets="UnitTestNET" />
+</Project>
