@@ -4,12 +4,12 @@
     <RootPath>$(MSBuildProjectDirectory)\..</RootPath>
     <SourceDirectory>$(RootPath)\src</SourceDirectory>
     <BuildDirectory>$(RootPath)\build</BuildDirectory>
+    <BuildOutputDirectory>$(BuildDirectory)\output\test</BuildOutputDirectory>
 	<ResultsOutputPath>$(BuildDirectory)\log</ResultsOutputPath>
     <PackagesPath>$(BuildDirectory)\packages</PackagesPath>
 	<Configuration Condition="'$(Configuration)'==''">Release</Configuration>
     <MSBuildCommunityTasksPath>$(PackagesPath)\MSBuildTasks.1.5.0.196\tools</MSBuildCommunityTasksPath>
 	<NUnitPath>$(PackagesPath)\NUnit.ConsoleRunner.3.2.1\tools</NUnitPath>
-	<VisualStudioVersion Condition="'$(VisualStudioVersion)'==''">14.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildCommunityTasksPath)\MSBuild.Community.Tasks.Targets"/>
   
@@ -25,14 +25,17 @@
     <MSBuild 
       Projects="$(SourceDirectory)\ProjectionSystem.Tests\ProjectionSystem.Tests.csproj;"
 	  Targets="Build"
-      Properties="Configuration=$(Configuration);VisualStudioVersion=$(VisualStudioVersion)"
+      Properties="
+	    Configuration=$(Configuration);
+		VisualStudioVersion=$(VisualStudioVersion);
+		OutputPath=$(BuildOutputDirectory);"
       StopOnFirstFailure="true"
       ContinueOnError="false"
       BuildInParallel="false" />
   </Target>
   
   <Target Name="UnitTestNET" DependsOnTargets="Build">
-    <CreateItem Include="$(SourceDirectory)\ProjectionSystem.Tests\bin\$(Configuration)\ProjectionSystem.Tests.dll;">
+    <CreateItem Include="$(BuildOutputDirectory)\ProjectionSystem.Tests.dll;">
       <Output TaskParameter="Include" ItemName="NUnitTestAssemblies" />
     </CreateItem>
     
