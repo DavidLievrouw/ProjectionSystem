@@ -26,6 +26,7 @@ namespace ProjectionSystem.States {
 
     public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+      if (projectionSystem.State.Id == Id) return;
       StateTransitionGuard(
         new[] { StateId.Expired },
         projectionSystem.State.Id);

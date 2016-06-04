@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils;
+using ProjectionSystem.Samples.Departments.Items;
 
 namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionDataService : IProjectionDataService<Department> {

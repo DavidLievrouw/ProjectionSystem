@@ -1,4 +1,4 @@
-﻿namespace ProjectionSystem.Samples.Departments {
+﻿namespace ProjectionSystem.Samples.Departments.Items {
   public enum PhoneType {
     Phone = 'P',
     Mobile = 'M',

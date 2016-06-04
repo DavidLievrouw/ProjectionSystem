@@ -20,6 +20,8 @@ namespace ProjectionSystem.States {
 
     public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+      if (projectionSystem.State.Id == Id) Task.FromResult(true);
+
       StateTransitionGuard(
         new[] { StateId.Maintaining },
         projectionSystem.State.Id);

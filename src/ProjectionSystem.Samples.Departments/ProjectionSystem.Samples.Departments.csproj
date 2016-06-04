@@ -50,11 +50,12 @@
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CurrentState.cs" />
-    <Compile Include="Department.cs" />
+    <Compile Include="Items\Department.cs" />
+    <Compile Include="DepartmentsProjectionSystem.cs" />
     <Compile Include="DepartmentsProjectionDataService.cs" />
     <Compile Include="ExpiredState.cs" />
     <Compile Include="MaintainingState.cs" />
-    <Compile Include="PhoneType.cs" />
+    <Compile Include="Items\PhoneType.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ProjectionSystem\ProjectionSystem.csproj">

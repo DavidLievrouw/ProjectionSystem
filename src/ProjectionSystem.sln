@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem.Samples.De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem.Samples.Departments.Tests", "ProjectionSystem.Samples.Departments.Tests\ProjectionSystem.Samples.Departments.Tests.csproj", "{78DDCAFC-5F3D-4375-8742-A4E793F6D096}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{6DC607A8-F435-4694-A95B-6362E7107566}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FDAF65E0-624A-4095-997D-0753D52F8BC9} = {6DC607A8-F435-4694-A95B-6362E7107566}
+		{78DDCAFC-5F3D-4375-8742-A4E793F6D096} = {6DC607A8-F435-4694-A95B-6362E7107566}
 	EndGlobalSection
 EndGlobal

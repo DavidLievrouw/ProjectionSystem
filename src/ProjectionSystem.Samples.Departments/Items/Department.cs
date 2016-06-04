@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ProjectionSystem.Samples.Departments {
+namespace ProjectionSystem.Samples.Departments.Items {
   public class Department : IProjectedItem {
     public int Id { get; set; }
     public Guid UniqueIdentifier { get; set; }
