@@ -20,7 +20,7 @@ namespace ProjectionSystem.Samples.Departments {
           ContactName = "Sandy Jefferson",
           PhoneNumber = "005677",
           PhoneType = PhoneType.Phone,
-          ProjectionTime = _systemClock.Now
+          ProjectionTime = _systemClock.UtcNow
         },
         new Department {
           Id = 2,
@@ -30,7 +30,7 @@ namespace ProjectionSystem.Samples.Departments {
           ContactName = "Andrew Dickson",
           PhoneNumber = "005688",
           PhoneType = PhoneType.Phone,
-          ProjectionTime = _systemClock.Now
+          ProjectionTime = _systemClock.UtcNow
         },
         new Department {
           Id = 3,
@@ -40,7 +40,7 @@ namespace ProjectionSystem.Samples.Departments {
           ContactName = "Chris Baker",
           PhoneNumber = "0558-554-52-22",
           PhoneType = PhoneType.Mobile,
-          ProjectionTime = _systemClock.Now
+          ProjectionTime = _systemClock.UtcNow
         }
       };
     }
@@ -54,7 +54,7 @@ namespace ProjectionSystem.Samples.Departments {
       var randomDelayMillis = new Random().Next(500, 10000);
       await Task.Delay(randomDelayMillis);
       foreach (var department in _projection) {
-        department.ProjectionTime = _systemClock.Now;
+        department.ProjectionTime = _systemClock.UtcNow;
       }
     }
   }
