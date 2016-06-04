@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{55650D38-E379-4E97-8C16-910091A0CFD4}</ProjectGuid>
+    <ProjectGuid>{78DDCAFC-5F3D-4375-8742-A4E793F6D096}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ProjectionSystem</RootNamespace>
-    <AssemblyName>ProjectionSystem.Tests</AssemblyName>
+    <RootNamespace>ProjectionSystem.Samples.Departments</RootNamespace>
+    <AssemblyName>ProjectionSystem.Samples.Departments.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -46,18 +46,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\GlobalAssemblyInfo.cs">
-      <Link>Properties\GlobalAssemblyInfo.cs</Link>
-    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\ProjectionSystem.Samples.Departments\ProjectionSystem.Samples.Departments.csproj">
+      <Project>{fdaf65e0-624a-4095-997d-0753d52f8bc9}</Project>
+      <Name>ProjectionSystem.Samples.Departments</Name>
+    </ProjectReference>
     <ProjectReference Include="..\ProjectionSystem\ProjectionSystem.csproj">
       <Project>{ca534837-581f-46b7-b46e-2bbc693e1576}</Project>
       <Name>ProjectionSystem</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
