@@ -19,7 +19,8 @@ namespace ProjectionSystem.Samples.Departments {
 
     public async Task<IEnumerable<Department>> GetProjectedDepartments() {
       if (State.Id == StateId.Expired) {
-        await EnterState(new MaintainingState(await State.GetProjectedData(), _expiration, _departmentsProjectionDataService));
+        var currentData = await State.GetProjectedData();
+        await EnterState(new MaintainingState(currentData, _expiration, _departmentsProjectionDataService));
       }
 
       return await State.GetProjectedData();

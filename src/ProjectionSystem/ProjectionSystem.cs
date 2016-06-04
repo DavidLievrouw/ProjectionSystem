@@ -11,8 +11,9 @@ namespace ProjectionSystem {
   public class ProjectionSystem<TItem> : ProjectionSystem, IProjectionSystem<TItem> where TItem : IProjectedItem {
     public override async Task EnterState(IProjectionSystemState state) {
       if (state == null) throw new ArgumentNullException(nameof(state));
-      await state.Enter(this).ConfigureAwait(false);
+      var previousState = base.State;
       base.State = state;
+      await state.Enter(this, previousState).ConfigureAwait(false);
     }
 
     public new IProjectionSystemState<TItem> State {

@@ -9,7 +9,6 @@ namespace ProjectionSystem.States {
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly SemaphoreSlim _semaphore;
     readonly TimeSpan _timeout;
-    bool _isMaintaining;
     IEnumerable<TItem> _projectedData;
 
     public MaintainingState(IEnumerable<TItem> oldProjectedData, TimeSpan timeout, IProjectionDataService<TItem> projectionDataService) {
@@ -19,43 +18,37 @@ namespace ProjectionSystem.States {
       _timeout = timeout;
       _projectionDataService = projectionDataService;
       _semaphore = new SemaphoreSlim(1);
-      _isMaintaining = false;
     }
 
     public override StateId Id => StateId.Maintaining;
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      if (projectionSystem.State.Id == Id) return;
+      if (projectionSystem.State.Id == Id) return Task.FromResult(true);
       StateTransitionGuard(
         new[] { StateId.Expired },
         projectionSystem.State.Id);
 
-      try {
-        _isMaintaining = true;
-
+      Task.Run(async () => {
         // Make sure only one refresh action is done at a time
         await _semaphore.WaitAsync().ConfigureAwait(false);
         try {
           await _projectionDataService.RefreshProjection().ConfigureAwait(false);
           _projectedData = await _projectionDataService.GetProjection().ConfigureAwait(false);
-        } finally {
+        }
+        finally {
           _semaphore.Release();
         }
-      } finally {
-        _isMaintaining = false;
-      }
 
-      await projectionSystem
-        .EnterState(new CurrentState<TItem>(_projectedData, _timeout))
-        .ConfigureAwait(false);
+        await projectionSystem
+          .EnterState(new CurrentState<TItem>(_projectedData, _timeout))
+          .ConfigureAwait(false);
+      });
+
+      return Task.FromResult(true);
     }
 
     public override async Task<IEnumerable<TItem>> GetProjectedData() {
-      // If currently busy and old data is present? Shortcut out of here.
-      var oldData = _projectedData;
-      if (_isMaintaining && oldData != null) return oldData;
-
       // Block until refresh is finished (only when no old data is available)
       await _semaphore.WaitAsync().ConfigureAwait(false);
       try {

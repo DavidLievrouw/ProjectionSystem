@@ -18,7 +18,7 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Current;
 
-    public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       if (projectionSystem.State.Id == Id) Task.FromResult(true);
 
