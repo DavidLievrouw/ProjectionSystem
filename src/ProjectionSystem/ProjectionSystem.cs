@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using ProjectionSystem.States;
 
 namespace ProjectionSystem {
   public abstract class ProjectionSystem : IProjectionSystem {

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ProjectionSystem {
+namespace ProjectionSystem.States {
   public interface IProjectionSystemState {
-    ProjectionState Id { get; }
+    StateId Id { get; }
     Task Enter(IProjectionSystem projectionSystem);
   }
 

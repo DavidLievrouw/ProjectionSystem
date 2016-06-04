@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ProjectionSystem {
+namespace ProjectionSystem.States {
   public abstract class ProjectionSystemState : IProjectionSystemState {
     public abstract Task Enter(IProjectionSystem projectionSystem);
-    public abstract ProjectionState Id { get; }
+    public abstract StateId Id { get; }
 
-    protected void StateTransitionGuard(IEnumerable<ProjectionState> allowedStates, ProjectionState originalState) {
-      var invalidTransitionException = new InvalidOperationException($"State '{originalState}' cannot handle a change to state '{Id}'.");
-      if (allowedStates == null || !allowedStates.Contains(originalState)) throw invalidTransitionException;
+    protected void StateTransitionGuard(IEnumerable<StateId> allowedStates, StateId originalStateId) {
+      var invalidTransitionException = new InvalidOperationException($"State '{originalStateId}' cannot handle a change to state '{Id}'.");
+      if (allowedStates == null || !allowedStates.Contains(originalStateId)) throw invalidTransitionException;
     }
   }
 
