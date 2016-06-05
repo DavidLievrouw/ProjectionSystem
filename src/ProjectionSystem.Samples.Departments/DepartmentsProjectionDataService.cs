@@ -59,7 +59,7 @@ namespace ProjectionSystem.Samples.Departments {
       // Fake update the projection
       _traceLogger.Verbose("Refreshing projection...");
       //var delayMillis = new Random().Next(500, 3000);
-      var delayMillis = 2000;
+      var delayMillis = 500;
       Thread.Sleep(delayMillis);
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;

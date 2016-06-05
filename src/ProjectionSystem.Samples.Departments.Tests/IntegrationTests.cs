@@ -18,7 +18,7 @@ namespace ProjectionSystem.Samples.Departments {
     [SetUp]
     public void SetUp() {
       _systemClock = new RealSystemClock();
-      _expiration = TimeSpan.FromSeconds(5);
+      _expiration = TimeSpan.FromSeconds(0.5);
       _traceLogger = new ConsoleTraceLogger(_systemClock);
       _projectionDataService = new DepartmentsProjectionDataService(_systemClock, _traceLogger);
       _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger);
@@ -34,7 +34,7 @@ namespace ProjectionSystem.Samples.Departments {
     [Test]
     public void WhenInitialised_RefreshesWhenExpirationPasses() {
       var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
-      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(1)));
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
       var query2 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
       Assert.That(query2, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
     }
@@ -66,7 +66,7 @@ namespace ProjectionSystem.Samples.Departments {
           try {
             var j = 0;
             while (j < 25) {
-              Thread.Sleep(500);
+              Thread.Sleep(50);
               _sut.GetProjectedDepartments();
               j++;
             }
@@ -78,7 +78,7 @@ namespace ProjectionSystem.Samples.Departments {
           try {
             var j = 0;
             while (j < 11) {
-              Thread.Sleep(1000);
+              Thread.Sleep(100);
               _sut.GetProjectedDepartments();
               j++;
             }
@@ -90,7 +90,7 @@ namespace ProjectionSystem.Samples.Departments {
           try {
             var j = 0;
             while (j < 8) {
-              Thread.Sleep(1500);
+              Thread.Sleep(150);
               _sut.GetProjectedDepartments();
               j++;
             }
