@@ -8,7 +8,7 @@ using NUnit.Framework;
 
 namespace ProjectionSystem.Samples.Departments {
   [TestFixture]
-  public class InitialisationTests {
+  public class IntegrationTests {
     DepartmentsProjectionSystem _sut;
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
@@ -59,49 +59,52 @@ namespace ProjectionSystem.Samples.Departments {
     public void StressTestThreadSafety() {
       _sut.GetProjectedDepartments();
       var watch = Stopwatch.StartNew();
-      var threads = new List<Thread>();
-      threads.Add(new Thread(() => {
-        try {
-          var j = 0;
-          while (j < 25) {
-            Thread.Sleep(500);
-            var departments = _sut.GetProjectedDepartments();
-            Console.WriteLine($"{watch.ElapsedMilliseconds} > (500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
-            j++;
+      var threads = new List<Thread> {
+        new Thread(() => {
+          try {
+            var j = 0;
+            while (j < 25) {
+              Thread.Sleep(500);
+              var departments = _sut.GetProjectedDepartments();
+              Console.WriteLine($"{watch.ElapsedMilliseconds} > (500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              j++;
+            }
+          } catch (Exception ex) {
+            Assert.Fail(ex.ToString());
           }
-        } catch (Exception ex) {
-          Assert.Fail(ex.ToString());
-        }
-      }));
-      threads.Add(new Thread(() => {
-        try {
-          var j = 0;
-          while (j < 11) {
-            Thread.Sleep(1000);
-            var departments = _sut.GetProjectedDepartments();
-            Console.WriteLine($"{watch.ElapsedMilliseconds} > (1000) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
-            j++;
+        }),
+        new Thread(() => {
+          try {
+            var j = 0;
+            while (j < 11) {
+              Thread.Sleep(1000);
+              var departments = _sut.GetProjectedDepartments();
+              Console.WriteLine($"{watch.ElapsedMilliseconds} > (1000) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              j++;
+            }
+          } catch (Exception ex) {
+            Assert.Fail(ex.ToString());
           }
-        } catch (Exception ex) {
-          Assert.Fail(ex.ToString());
-        }
-      }));
-      threads.Add(new Thread(() => {
-        try {
-          var j = 0;
-          while (j < 8) {
-            Thread.Sleep(1500);
-            var departments = _sut.GetProjectedDepartments();
-            Console.WriteLine($"{watch.ElapsedMilliseconds} > (1500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
-            j++;
+        }),
+        new Thread(() => {
+          try {
+            var j = 0;
+            while (j < 8) {
+              Thread.Sleep(1500);
+              var departments = _sut.GetProjectedDepartments();
+              Console.WriteLine($"{watch.ElapsedMilliseconds} > (1500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              j++;
+            }
+          } catch (Exception ex) {
+            Assert.Fail(ex.ToString());
           }
-        } catch (Exception ex) {
-          Assert.Fail(ex.ToString());
-        }
-      }));
+        })
+      };
       threads.ForEach(t => t.Start());
       threads.ForEach(t => t.Join());
       watch.Stop();
+
+      Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
     }
   }
 }

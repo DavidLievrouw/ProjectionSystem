@@ -8,6 +8,7 @@ namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionDataService : IProjectionDataService<Department> {
     readonly ISystemClock _systemClock;
     readonly IEnumerable<Department> _projection;
+    int _refreshCount;
 
     public DepartmentsProjectionDataService(ISystemClock systemClock) {
       if (systemClock == null) throw new ArgumentNullException(nameof(systemClock));
@@ -58,7 +59,10 @@ namespace ProjectionSystem.Samples.Departments {
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;
       }
+      _refreshCount++;
       Console.WriteLine("Refreshed projection");
     }
+
+    public int RefreshCount => _refreshCount;
   }
 }
