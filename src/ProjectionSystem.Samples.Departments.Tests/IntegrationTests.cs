@@ -13,13 +13,15 @@ namespace ProjectionSystem.Samples.Departments {
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
     TimeSpan _expiration;
+    ConsoleTraceLogger _traceLogger;
 
     [SetUp]
     public void SetUp() {
       _systemClock = new RealSystemClock();
       _expiration = TimeSpan.FromSeconds(5);
-      _projectionDataService = new DepartmentsProjectionDataService(_systemClock);
-      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService);
+      _traceLogger = new ConsoleTraceLogger(_systemClock);
+      _projectionDataService = new DepartmentsProjectionDataService(_systemClock, _traceLogger);
+      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger);
     }
 
     [Test]
@@ -65,8 +67,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 25) {
               Thread.Sleep(500);
-              var departments = _sut.GetProjectedDepartments();
-              Console.WriteLine($"{watch.ElapsedMilliseconds} > (500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              _sut.GetProjectedDepartments();
               j++;
             }
           } catch (Exception ex) {
@@ -78,8 +79,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 11) {
               Thread.Sleep(1000);
-              var departments = _sut.GetProjectedDepartments();
-              Console.WriteLine($"{watch.ElapsedMilliseconds} > (1000) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              _sut.GetProjectedDepartments();
               j++;
             }
           } catch (Exception ex) {
@@ -91,8 +91,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 8) {
               Thread.Sleep(1500);
-              var departments = _sut.GetProjectedDepartments();
-              Console.WriteLine($"{watch.ElapsedMilliseconds} > (1500) Thread {Thread.CurrentThread.ManagedThreadId} returns departments of {departments.Max(dep => dep.ProjectionTime)}.");
+              _sut.GetProjectedDepartments();
               j++;
             }
           } catch (Exception ex) {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ProjectionSystem.Diagnostics;
 using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
 
@@ -7,8 +8,11 @@ namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionSystem : ProjectionSystem<Department> {
     readonly object _syncRoot;
 
-    public DepartmentsProjectionSystem(TimeSpan expiration, IProjectionDataService<Department> departmentsProjectionDataService) : base(expiration, departmentsProjectionDataService) {
-      State = new ExpiredState(); // Initialise to expired
+    public DepartmentsProjectionSystem(
+      TimeSpan expiration,
+      IProjectionDataService<Department> departmentsProjectionDataService,
+      ITraceLogger traceLogger) : base(expiration, departmentsProjectionDataService, traceLogger) {
+      State = new ExpiredState<Department>(); // Initialise to expired
       _syncRoot = new object();
     }
 

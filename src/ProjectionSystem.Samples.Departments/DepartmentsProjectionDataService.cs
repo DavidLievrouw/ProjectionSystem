@@ -2,17 +2,21 @@
 using System.Collections.Generic;
 using System.Threading;
 using DavidLievrouw.Utils;
+using ProjectionSystem.Diagnostics;
 using ProjectionSystem.Samples.Departments.Items;
 
 namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionDataService : IProjectionDataService<Department> {
     readonly ISystemClock _systemClock;
+    readonly ITraceLogger _traceLogger;
     readonly IEnumerable<Department> _projection;
     int _refreshCount;
 
-    public DepartmentsProjectionDataService(ISystemClock systemClock) {
+    public DepartmentsProjectionDataService(ISystemClock systemClock, ITraceLogger traceLogger) {
       if (systemClock == null) throw new ArgumentNullException(nameof(systemClock));
+      if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
       _systemClock = systemClock;
+      _traceLogger = traceLogger;
       _projection = new[] {
         new Department {
           Id = 1,
@@ -53,6 +57,7 @@ namespace ProjectionSystem.Samples.Departments {
 
     public void RefreshProjection() {
       // Fake update the projection
+      _traceLogger.Verbose("Refreshing projection...");
       //var delayMillis = new Random().Next(500, 3000);
       var delayMillis = 2000;
       Thread.Sleep(delayMillis);
@@ -60,7 +65,7 @@ namespace ProjectionSystem.Samples.Departments {
         department.ProjectionTime = _systemClock.UtcNow;
       }
       _refreshCount++;
-      Console.WriteLine("Refreshed projection");
+      _traceLogger.Verbose($"Refreshed projection for the {RefreshCount}th time.");
     }
 
     public int RefreshCount => _refreshCount;
