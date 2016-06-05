@@ -73,6 +73,12 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Diagnostics\ExceptionFormatterTests.cs" />
+    <Compile Include="Diagnostics\LogEntryFactoryTests.cs" />
+    <Compile Include="Diagnostics\LogEntryTests.cs" />
+    <Compile Include="Diagnostics\PlainTextEntryFormatterTests.cs" />
+    <Compile Include="Diagnostics\TraceEventTypeAdapterTests.cs" />
+    <Compile Include="Diagnostics\TraceLoggerTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

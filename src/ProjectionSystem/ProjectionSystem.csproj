@@ -33,6 +33,10 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="DavidLievrouw.Utils, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\DavidLievrouw.Utils.2.0.0\lib\net452\DavidLievrouw.Utils.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Transactions" />
@@ -46,6 +50,18 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Diagnostics\ExceptionFormatter.cs" />
+    <Compile Include="Diagnostics\IEntryFormatter.cs" />
+    <Compile Include="Diagnostics\IExceptionFormatter.cs" />
+    <Compile Include="Diagnostics\ILogEntry.cs" />
+    <Compile Include="Diagnostics\ILogEntryFactory.cs" />
+    <Compile Include="Diagnostics\ITraceLogger.cs" />
+    <Compile Include="Diagnostics\LogEntry.cs" />
+    <Compile Include="Diagnostics\LogEntryFactory.cs" />
+    <Compile Include="Diagnostics\PlainTextEntryFormatter.cs" />
+    <Compile Include="Diagnostics\Severity.cs" />
+    <Compile Include="Diagnostics\TraceEventTypeAdapter.cs" />
+    <Compile Include="Diagnostics\TraceLogger.cs" />
     <Compile Include="IProjectionDataService.cs" />
     <Compile Include="IProjectedItem.cs" />
     <Compile Include="IProjectionSystem.cs" />
@@ -57,6 +73,9 @@
     <Compile Include="States\StateId.cs" />
     <Compile Include="ProjectionSystem.cs" />
     <Compile Include="States\ProjectionSystemState.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

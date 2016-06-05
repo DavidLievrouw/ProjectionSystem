@@ -7,7 +7,7 @@ using DavidLievrouw.Utils;
 using NUnit.Framework;
 
 namespace ProjectionSystem.Samples.Departments {
-  [TestFixture]
+  [TestFixture(Category = "Integration")]
   public class IntegrationTests {
     DepartmentsProjectionSystem _sut;
     DepartmentsProjectionDataService _projectionDataService;
