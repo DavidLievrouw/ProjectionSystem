@@ -10,10 +10,9 @@ namespace ProjectionSystem.States {
 
     public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-
       StateTransitionGuard(
         new[] { StateId.Current },
-        projectionSystem.State.Id);
+        previousState.Id);
 
       _projectedData = previousState.GetProjectedData(); // Can be null the first time
     }

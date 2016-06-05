@@ -19,36 +19,17 @@ namespace ProjectionSystem.States {
 
     public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      if (projectionSystem.State.Id == Id) return; // Some other thread is already updating the projection
-
       StateTransitionGuard(
         new[] { StateId.Expired },
-        projectionSystem.State.Id);
+        previousState.Id);
 
-      // Return the old data, as long as the update process is not finished
-      _projectedData = previousState.GetProjectedData();
-
-      var forciblyUpdated = false;
       // Make sure only one refresh action is done at a time
       lock (_syncRoot) {
-        if (_projectedData == null) {
-          forciblyUpdated = true;
-          _projectionDataService.RefreshProjection();
-          _projectedData = _projectionDataService.GetProjection();
-        }
+        _projectionDataService.RefreshProjection();
+        _projectedData = _projectionDataService.GetProjection();
       }
-
-      Task.Run(() => {        
-        // Make sure only one refresh action is done at a time
-        lock (_syncRoot) {
-          if (!forciblyUpdated) {
-            _projectionDataService.RefreshProjection();
-            _projectedData = _projectionDataService.GetProjection();
-          }
-        }
-
-        projectionSystem.SwitchToCurrentState();
-      });
+      
+      projectionSystem.SwitchToCurrentState();
     }
 
     public override IEnumerable<TItem> GetProjectedData() {

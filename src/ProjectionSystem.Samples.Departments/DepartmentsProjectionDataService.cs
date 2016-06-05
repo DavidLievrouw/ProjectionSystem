@@ -52,8 +52,9 @@ namespace ProjectionSystem.Samples.Departments {
 
     public void RefreshProjection() {
       // Fake update the projection
-      var randomDelayMillis = new Random().Next(500, 3000);
-      Thread.Sleep(randomDelayMillis);
+      //var delayMillis = new Random().Next(500, 3000);
+      var delayMillis = 2000;
+      Thread.Sleep(delayMillis);
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;
       }

@@ -17,10 +17,9 @@ namespace ProjectionSystem.States {
 
     public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      if (projectionSystem.State.Id == Id) return; // Some other thread has already marked the projection as 'Current'
       StateTransitionGuard(
         new[] { StateId.Updating },
-        projectionSystem.State.Id);
+        previousState.Id);
 
       _projectedData = previousState.GetProjectedData();
 
