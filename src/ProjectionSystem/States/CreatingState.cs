@@ -4,19 +4,23 @@ using System.Collections.Generic;
 namespace ProjectionSystem.States {
   public class CreatingState<TItem> : State<TItem>
     where TItem : IProjectedItem {
-    readonly IProjectionSystem<TItem> _projectionSystem;
+    readonly IStateTransitioner _stateTransitioner;
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
     readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
     readonly object _createProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
-    public CreatingState(IProjectionSystem<TItem> projectionSystem, IStateTransitionGuardFactory stateTransitionGuardFactory, IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+    public CreatingState(
+      IStateTransitioner stateTransitioner,
+      IStateTransitionGuardFactory stateTransitionGuardFactory,
+      IProjectionDataService<TItem> projectionDataService,
+      ISyncLockFactory syncLockFactory) {
+      if (stateTransitioner == null) throw new ArgumentNullException(nameof(stateTransitioner));
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       if (stateTransitionGuardFactory == null) throw new ArgumentNullException(nameof(stateTransitionGuardFactory));
-      _projectionSystem = projectionSystem;
+      _stateTransitioner = stateTransitioner;
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
       _stateTransitionGuardFactory = stateTransitionGuardFactory;
@@ -36,7 +40,7 @@ namespace ProjectionSystem.States {
         _projectedData = _projectionDataService.GetProjection();
       }
       
-      _projectionSystem.TransitionToCurrentState();
+      _stateTransitioner.TransitionToCurrentState();
     }
 
     public override IEnumerable<TItem> GetProjectedData() {

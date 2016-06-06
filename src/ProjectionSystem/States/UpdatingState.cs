@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ProjectionSystem.States {
   public class UpdatingState<TItem> : State<TItem>
     where TItem : IProjectedItem {
-    readonly IProjectionSystem<TItem> _projectionSystem;
+    readonly IStateTransitioner _stateTransitioner;
     readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
@@ -14,13 +14,18 @@ namespace ProjectionSystem.States {
     readonly object _updateProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
-    public UpdatingState(IProjectionSystem<TItem> projectionSystem, IStateTransitionGuardFactory stateTransitionGuardFactory, IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory, TaskScheduler taskScheduler) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+    public UpdatingState(
+      IStateTransitioner stateTransitioner,
+      IStateTransitionGuardFactory stateTransitionGuardFactory,
+      IProjectionDataService<TItem> projectionDataService,
+      ISyncLockFactory syncLockFactory,
+      TaskScheduler taskScheduler) {
+      if (stateTransitioner == null) throw new ArgumentNullException(nameof(stateTransitioner));
       if (stateTransitionGuardFactory == null) throw new ArgumentNullException(nameof(stateTransitionGuardFactory));
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
-      _projectionSystem = projectionSystem;
+      _stateTransitioner = stateTransitioner;
       _stateTransitionGuardFactory = stateTransitionGuardFactory;
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
@@ -44,7 +49,7 @@ namespace ProjectionSystem.States {
           _projectedData = _projectionDataService.GetProjection();
         }
 
-        _projectionSystem.TransitionToCurrentState();
+        _stateTransitioner.TransitionToCurrentState();
       }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
     }
 

@@ -5,18 +5,22 @@ using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
   public class CurrentState<TItem> : State<TItem> where TItem : IProjectedItem {
-    readonly IProjectionSystem<TItem> _projectionSystem;
+    readonly IStateTransitioner _stateTransitioner;
     readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
     readonly TimeSpan _timeout;
     readonly TaskScheduler _taskScheduler;
     IEnumerable<TItem> _projectedData;
 
-    public CurrentState(IProjectionSystem<TItem> projectionSystem, IStateTransitionGuardFactory stateTransitionGuardFactory, TimeSpan timeout, TaskScheduler taskScheduler) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+    public CurrentState(
+      IStateTransitioner stateTransitioner,
+      IStateTransitionGuardFactory stateTransitionGuardFactory,
+      TimeSpan timeout,
+      TaskScheduler taskScheduler) {
+      if (stateTransitioner == null) throw new ArgumentNullException(nameof(stateTransitioner));
       if (stateTransitionGuardFactory == null) throw new ArgumentNullException(nameof(stateTransitionGuardFactory));
       if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
-      _projectionSystem = projectionSystem;
+      _stateTransitioner = stateTransitioner;
       _stateTransitionGuardFactory = stateTransitionGuardFactory;
       _timeout = timeout;
       _taskScheduler = taskScheduler;
@@ -34,7 +38,7 @@ namespace ProjectionSystem.States {
       // Expire after the specified amount of time
       Task.Factory.StartNew(async () => {
         await Task.Delay(_timeout);
-        _projectionSystem.TransitionToExpiredState();
+        _stateTransitioner.TransitionToExpiredState();
       }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
     }
 
