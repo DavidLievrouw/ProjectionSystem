@@ -67,8 +67,10 @@
     <Compile Include="IProjectionSystem.cs" />
     <Compile Include="IProjectionSystemStateSwitcher.cs" />
     <Compile Include="States\CurrentState.cs" />
+    <Compile Include="States\UninitialisedState.cs" />
     <Compile Include="States\ExpiredState.cs" />
     <Compile Include="States\IProjectionSystemState.cs" />
+    <Compile Include="States\CreatingState.cs" />
     <Compile Include="States\UpdatingState.cs" />
     <Compile Include="States\StateId.cs" />
     <Compile Include="ProjectionSystem.cs" />

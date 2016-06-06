@@ -1,7 +1,9 @@
 ﻿namespace ProjectionSystem.States {
   public enum StateId {
-    Expired,
+    Uninitialised,
+    Creating,
     Updating,
-    Current
+    Current,
+    Expired
   }
 }

@@ -9,22 +9,25 @@ namespace ProjectionSystem {
 
   public class ProjectionSystem<TItem> : ProjectionSystem, IProjectionSystem<TItem>
     where TItem : IProjectedItem {
-    readonly ITraceLogger _traceLogger;
     readonly IProjectionSystemState<TItem> _currentState;
     readonly IProjectionSystemState<TItem> _expiredState;
-    readonly object _stateLock;
     readonly IProjectionSystemState<TItem> _updatingState;
+    readonly IProjectionSystemState<TItem> _creatingState;
+    readonly object _stateLock;
+    readonly ITraceLogger _traceLogger;
 
     public ProjectionSystem(TimeSpan timeout, IProjectionDataService<TItem> projectionDataService, ITraceLogger traceLogger) {
-      _traceLogger = traceLogger;
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
+      _creatingState = new CreatingState<TItem>(projectionDataService);
       _currentState = new CurrentState<TItem>(timeout);
       _expiredState = new ExpiredState<TItem>();
       _updatingState = new UpdatingState<TItem>(projectionDataService);
-      State = _expiredState; // Expired on start
+      _traceLogger = traceLogger;
       _stateLock = new object();
+
+      State = new UninitialisedState<TItem>();
     }
 
     public new IProjectionSystemState<TItem> State {
@@ -38,6 +41,16 @@ namespace ProjectionSystem {
         State = _expiredState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
         _expiredState.Enter(this, previousState);
+        _traceLogger.Verbose($"Entered '{State.Id}' state.");
+      }
+    }
+
+    public void SwitchToCreatingState() {
+      lock (_stateLock) {
+        var previousState = State;
+        State = _creatingState;
+        _traceLogger.Verbose($"Entering '{State.Id}' state.");
+        _creatingState.Enter(this, previousState);
         _traceLogger.Verbose($"Entered '{State.Id}' state.");
       }
     }

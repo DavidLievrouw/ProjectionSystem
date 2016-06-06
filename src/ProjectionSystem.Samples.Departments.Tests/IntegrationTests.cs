@@ -13,15 +13,27 @@ namespace ProjectionSystem.Samples.Departments {
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
     TimeSpan _expiration;
+    TimeSpan _refreshDuration;
     ConsoleTraceLogger _traceLogger;
 
     [SetUp]
     public void SetUp() {
       _systemClock = new RealSystemClock();
       _expiration = TimeSpan.FromSeconds(0.5);
+      _refreshDuration = TimeSpan.FromSeconds(0.25);
       _traceLogger = new ConsoleTraceLogger(_systemClock);
-      _projectionDataService = new DepartmentsProjectionDataService(_systemClock, _traceLogger);
+      _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
       _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger);
+    }
+
+    [Test]
+    public void WhenProjectionExpiresBeforeCreateIsFinished_ExpiredDataIsStillAccessible() {
+      Assert.Fail("Implement!");
+    }
+
+    [Test]
+    public void WhenProjectionExpiresBeforeUpdateIsFinished_ExpiredDataIsStillAccessible() {
+      Assert.Fail("Implement!");
     }
 
     [Test]
@@ -36,7 +48,17 @@ namespace ProjectionSystem.Samples.Departments {
       var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
       var query2 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
-      Assert.That(query2, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
+      Assert.That(query1, Is.EqualTo(query2), "While still in updating mode, the projection system should return the expired projection.");
+    }
+
+    [Test]
+    public void WhenInitialised_RefreshesWhenExpirationPasses_AndReturnsNewProjectionWhenRefreshed() {
+      var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
+      _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime); // Trigger update
+      Thread.Sleep(_expiration.Add(_refreshDuration).Add(_refreshDuration)); // Wait until refresh is certainly finished
+      var query3 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      Assert.That(query3, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
     }
 
     [Test]
@@ -59,7 +81,7 @@ namespace ProjectionSystem.Samples.Departments {
 
     [Test]
     public void StressTestThreadSafety() {
-      _sut.GetProjectedDepartments();
+      _sut.GetProjectedDepartments(); // Make sure projection is current
       var watch = Stopwatch.StartNew();
       var threads = new List<Thread> {
         new Thread(() => {
@@ -102,6 +124,8 @@ namespace ProjectionSystem.Samples.Departments {
       threads.ForEach(t => t.Start());
       threads.ForEach(t => t.Join());
       watch.Stop();
+
+      Thread.Sleep(_expiration.Add(_refreshDuration).Add(_refreshDuration)); // Wait until last refresh is certainly finished
 
       Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
     }

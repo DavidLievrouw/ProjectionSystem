@@ -7,9 +7,10 @@ namespace ProjectionSystem.States {
     public abstract void Enter(IProjectionSystem projectionSystem, IProjectionSystemState previousState);
     public abstract StateId Id { get; }
 
-    protected void StateTransitionGuard(IEnumerable<StateId> allowedStates, StateId originalStateId) {
+    protected void StateTransitionGuard(IEnumerable<StateId> allowedStates, StateId? originalStateId) {
       var invalidTransitionException = new InvalidOperationException($"State '{originalStateId}' cannot handle a change to state '{Id}'.");
-      if (allowedStates == null || !allowedStates.Contains(originalStateId)) throw invalidTransitionException;
+      if (!originalStateId.HasValue) return;
+      if (allowedStates == null || !allowedStates.Contains(originalStateId.Value)) throw invalidTransitionException;
     }
   }
 

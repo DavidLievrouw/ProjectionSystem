@@ -7,14 +7,17 @@ using ProjectionSystem.Samples.Departments.Items;
 
 namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionDataService : IProjectionDataService<Department> {
+    readonly TimeSpan _refreshDuration;
     readonly ISystemClock _systemClock;
     readonly ITraceLogger _traceLogger;
     readonly IEnumerable<Department> _projection;
     int _refreshCount;
 
-    public DepartmentsProjectionDataService(ISystemClock systemClock, ITraceLogger traceLogger) {
+    public DepartmentsProjectionDataService(TimeSpan refreshDuration, ISystemClock systemClock, ITraceLogger traceLogger) {
       if (systemClock == null) throw new ArgumentNullException(nameof(systemClock));
       if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
+      if (refreshDuration <= TimeSpan.Zero) throw new ArgumentException("An invalid refresh duration has been specified.", nameof(refreshDuration));
+      _refreshDuration = refreshDuration;
       _systemClock = systemClock;
       _traceLogger = traceLogger;
       _projection = new[] {
@@ -58,8 +61,7 @@ namespace ProjectionSystem.Samples.Departments {
     public void RefreshProjection() {
       // Fake update the projection
       _traceLogger.Verbose("Refreshing projection...");
-      //var delayMillis = new Random().Next(500, 3000);
-      var delayMillis = 500;
+      var delayMillis = (int)_refreshDuration.TotalMilliseconds;
       Thread.Sleep(delayMillis);
       foreach (var department in _projection) {
         department.ProjectionTime = _systemClock.UtcNow;

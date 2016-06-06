@@ -12,12 +12,12 @@ namespace ProjectionSystem.Samples.Departments {
       TimeSpan expiration,
       IProjectionDataService<Department> departmentsProjectionDataService,
       ITraceLogger traceLogger) : base(expiration, departmentsProjectionDataService, traceLogger) {
-      State = new ExpiredState<Department>(); // Initialise to expired
       _syncRoot = new object();
     }
 
     public IEnumerable<Department> GetProjectedDepartments() {
       lock (_syncRoot) {
+        if (State.Id == StateId.Uninitialised) SwitchToCreatingState();
         if (State.Id == StateId.Expired) SwitchToUpdatingState();
       }
       return State.GetProjectedData();

@@ -18,11 +18,12 @@ namespace ProjectionSystem.States {
     public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       StateTransitionGuard(
-        new[] { StateId.Updating },
+        new[] { StateId.Creating, StateId.Updating },
         previousState.Id);
 
-      _projectedData = previousState.GetProjectedData();
+      _projectedData = previousState.GetProjectedData(); // Get the projection that was created or updated
 
+      // Expire after the specified amount of time
       _timer = new Timer(_ => {
         projectionSystem.SwitchToExpiredState();
         _timer.Dispose();
