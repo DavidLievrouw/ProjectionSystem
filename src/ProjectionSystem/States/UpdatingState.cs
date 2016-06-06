@@ -11,7 +11,6 @@ namespace ProjectionSystem.States {
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
     readonly TaskScheduler _taskScheduler;
-    readonly object _updateProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
     public UpdatingState(
@@ -30,7 +29,6 @@ namespace ProjectionSystem.States {
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
       _taskScheduler = taskScheduler;
-      _updateProjectionLockObj = new object();
     }
 
     public override StateId Id => StateId.Updating;
@@ -44,7 +42,7 @@ namespace ProjectionSystem.States {
 
       Task.Factory.StartNew(() => {
         // Make sure only one update action is done at a time
-        using (_syncLockFactory.CreateFor(_updateProjectionLockObj)) {
+        using (_syncLockFactory.Create()) {
           _projectionDataService.RefreshProjection();
           _projectedData = _projectionDataService.GetProjection();
         }

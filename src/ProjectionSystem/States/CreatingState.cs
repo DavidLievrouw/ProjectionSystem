@@ -8,7 +8,6 @@ namespace ProjectionSystem.States {
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
     readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
-    readonly object _createProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
     public CreatingState(
@@ -24,7 +23,6 @@ namespace ProjectionSystem.States {
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
       _stateTransitionGuardFactory = stateTransitionGuardFactory;
-      _createProjectionLockObj = new object();
     }
 
     public override StateId Id => StateId.Creating;
@@ -35,7 +33,7 @@ namespace ProjectionSystem.States {
       transitionGuard.StateTransitionAllowed(previousState);
 
       // Make sure only one refresh action is done at a time
-      using (_syncLockFactory.CreateFor(_createProjectionLockObj)) { 
+      using (_syncLockFactory.Create()) { 
         _projectionDataService.RefreshProjection();
         _projectedData = _projectionDataService.GetProjection();
       }
@@ -45,7 +43,7 @@ namespace ProjectionSystem.States {
 
     public override IEnumerable<TItem> GetProjectedData() {
       // Do not allow querying of the data, until creation is finished
-      using (_syncLockFactory.CreateFor(_createProjectionLockObj)) {
+      using (_syncLockFactory.Create()) {
         return _projectedData;
       }
     }

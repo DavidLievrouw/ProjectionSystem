@@ -14,12 +14,17 @@ namespace ProjectionSystem.Samples.Departments {
     DepartmentsProjectionSystem _sut;
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
-    RealSyncLockFactory _realSyncLockFactory;
     TaskScheduler _taskScheduler;
     TimeSpan _expiration;
     TimeSpan _refreshDuration;
     ConsoleTraceLogger _traceLogger;
     StateTransitionGuardFactory _transitionGuardFactory;
+    object _stateLockObj;
+    object _createProjectionLockObj;
+    object _updateProjectionLockObj;
+    RealSyncLockFactory _updateProjectionLockFactory;
+    RealSyncLockFactory _createProjectionLockFactory;
+    RealSyncLockFactory _stateSyncLockFactory;
 
     [OneTimeSetUp]
     public void OneTimeSetUp() {
@@ -28,15 +33,29 @@ namespace ProjectionSystem.Samples.Departments {
 
     [SetUp]
     public void SetUp() {
+      _stateLockObj = new object();
+      _stateSyncLockFactory = new RealSyncLockFactory(_stateLockObj);
+      _createProjectionLockObj = new object();
+      _createProjectionLockFactory = new RealSyncLockFactory(_createProjectionLockObj);
+      _updateProjectionLockObj = new object();
+      _updateProjectionLockFactory = new RealSyncLockFactory(_updateProjectionLockObj);
+
       _systemClock = new RealSystemClock();
       _expiration = TimeSpan.FromSeconds(0.5);
       _refreshDuration = TimeSpan.FromSeconds(0.25);
       _traceLogger = new ConsoleTraceLogger(_systemClock);
-      _realSyncLockFactory = new RealSyncLockFactory();
       _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
       _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
       _transitionGuardFactory = new StateTransitionGuardFactory();
-      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _realSyncLockFactory, _transitionGuardFactory, _taskScheduler);
+      _sut = new DepartmentsProjectionSystem(
+        _expiration,
+        _projectionDataService,
+        _traceLogger,
+        _stateSyncLockFactory,
+        _createProjectionLockFactory,
+        _updateProjectionLockFactory,
+        _transitionGuardFactory,
+        _taskScheduler);
     }
 
     [Test]

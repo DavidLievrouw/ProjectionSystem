@@ -2,9 +2,15 @@
 
 namespace ProjectionSystem {
   public class RealSyncLockFactory : ISyncLockFactory {
-    public ISyncLock CreateFor(object toLock) {
+    readonly object _toLock;
+
+    public RealSyncLockFactory(object toLock) {
       if (toLock == null) throw new ArgumentNullException(nameof(toLock));
-      return new RealSyncLock(toLock);
+      _toLock = toLock;
+    }
+
+    public ISyncLock Create() {
+      return new RealSyncLock(_toLock);
     }
   }
 }
