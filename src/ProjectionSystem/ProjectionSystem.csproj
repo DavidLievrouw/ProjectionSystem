@@ -77,8 +77,8 @@
     <Compile Include="States\StateId.cs" />
     <Compile Include="ProjectionSystem.cs" />
     <Compile Include="States\ProjectionSystemState.cs" />
-    <Compile Include="SyncLock.cs" />
-    <Compile Include="SyncLockFactory.cs" />
+    <Compile Include="RealSyncLock.cs" />
+    <Compile Include="RealSyncLockFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

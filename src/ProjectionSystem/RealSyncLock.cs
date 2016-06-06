@@ -1,16 +1,16 @@
 ﻿using System.Threading;
 
 namespace ProjectionSystem {
-  public class SyncLock : ISyncLock {
+  public class RealSyncLock : ISyncLock {
     readonly object _toLock;
     readonly bool _lockWasTaken;
 
-    public SyncLock(object toLock) {
+    public RealSyncLock(object toLock) {
       _toLock = toLock;
       Monitor.Enter(_toLock, ref _lockWasTaken);
     }
 
-    public virtual void Dispose() {
+    public void Dispose() {
       if (_lockWasTaken) Monitor.Exit(_toLock);
     }
   }
