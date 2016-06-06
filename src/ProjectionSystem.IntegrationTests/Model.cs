@@ -16,6 +16,7 @@ namespace ProjectionSystem.IntegrationTests {
       var taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
       var createProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var updateProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
+      var stateTransitionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var transitionGuardFactory = new StateTransitionGuardFactory();
 
       return new ProjectionSystem<Department>(
@@ -24,7 +25,8 @@ namespace ProjectionSystem.IntegrationTests {
         new CurrentState<Department>(transitionGuardFactory, expiration, taskScheduler),
         new ExpiredState<Department>(transitionGuardFactory),
         new UpdatingState<Department>(transitionGuardFactory, projectionDataService, updateProjectionLockFactory, taskScheduler),
-        traceLogger);
+        traceLogger,
+        stateTransitionLockFactory);
     }
 
     public class ProjectionDataServiceForTest : IProjectionDataService<Department> {

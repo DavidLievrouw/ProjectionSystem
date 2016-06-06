@@ -12,6 +12,7 @@ namespace ProjectionSystem {
     readonly IState<TItem> _expiredState;
     readonly IState<TItem> _updatingState;
     readonly ITraceLogger _traceLogger;
+    readonly ISyncLockFactory _stateTransitionLockFactory;
 
     public ProjectionSystem(
       IState<TItem> uninitialisedState,
@@ -19,62 +20,59 @@ namespace ProjectionSystem {
       IState<TItem> currentState,
       IState<TItem> expiredState,
       IState<TItem> updatingState,
-      ITraceLogger traceLogger) {
+      ITraceLogger traceLogger,
+      ISyncLockFactory stateTransitionLockFactory) {
       if (uninitialisedState == null) throw new ArgumentNullException(nameof(uninitialisedState));
       if (creatingState == null) throw new ArgumentNullException(nameof(creatingState));
       if (currentState == null) throw new ArgumentNullException(nameof(currentState));
       if (expiredState == null) throw new ArgumentNullException(nameof(expiredState));
       if (updatingState == null) throw new ArgumentNullException(nameof(updatingState));
       if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
+      if (stateTransitionLockFactory == null) throw new ArgumentNullException(nameof(stateTransitionLockFactory));
       _creatingState = creatingState;
       _currentState = currentState;
       _expiredState = expiredState;
       _updatingState = updatingState;
       _traceLogger = traceLogger;
+      _stateTransitionLockFactory = stateTransitionLockFactory;
 
       State = uninitialisedState;
     }
 
-    public IState<TItem> State { get; private set; }
+    public IState<TItem> State { get; set; }
 
     IState IProjectionSystem.State => State;
 
     public async Task TransitionToExpiredState() {
-      var previousState = State;
-      State = _expiredState;
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
-      await _expiredState.Enter(this, previousState);
+      await _expiredState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToCreatingState() {
-      var previousState = State;
-      State = _creatingState;
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
-      await _creatingState.Enter(this, previousState);
+      await _creatingState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToUpdatingState() {
-      var previousState = State;
-      State = _updatingState;
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
-      await _updatingState.Enter(this, previousState);
+      await _updatingState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToCurrentState() {
-      var previousState = State;
-      State = _currentState;
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
-      await _currentState.Enter(this, previousState);
+      await _currentState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task<IEnumerable<TItem>> GetProjection() {
-      if (State.Id == StateId.Uninitialised) await TransitionToCreatingState();
-      if (State.Id == StateId.Expired) await TransitionToUpdatingState();
-      return await State.GetProjection();
+      using (await _stateTransitionLockFactory.Create()) {
+        if (State.Id == StateId.Uninitialised) await TransitionToCreatingState();
+        if (State.Id == StateId.Expired) await TransitionToUpdatingState();
+        return await State.GetProjection();
+      }
     }
   }
 }

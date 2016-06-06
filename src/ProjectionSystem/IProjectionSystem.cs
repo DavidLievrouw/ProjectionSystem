@@ -14,5 +14,6 @@ namespace ProjectionSystem {
   public interface IProjectionSystem<TItem> : IProjectionSystem
     where TItem : IProjectedItem {
     Task<IEnumerable<TItem>> GetProjection();
+    new IState<TItem> State { get; set; }
   }
 }
