@@ -11,6 +11,7 @@ namespace ProjectionSystem.Samples.Departments {
   public class IntegrationTests {
     TimeSpan _expiration;
     TimeSpan _updateDuration;
+    Model.ProjectionDataServiceForTest _projectionDataService;
     IProjectionSystem<Department> _sut;
 
     [OneTimeSetUp]
@@ -22,7 +23,8 @@ namespace ProjectionSystem.Samples.Departments {
     public void SetUp() {
       _expiration = TimeSpan.FromSeconds(0.5);
       _updateDuration = TimeSpan.FromSeconds(0.25);
-      _sut = Model.Create(_expiration, _updateDuration);
+      _projectionDataService = new Model.ProjectionDataServiceForTest(_updateDuration);
+      _sut = Model.Create(_expiration, _projectionDataService);
     }
 
     [Test]
@@ -30,7 +32,7 @@ namespace ProjectionSystem.Samples.Departments {
       // Reconfigure from setup
       _expiration = TimeSpan.FromSeconds(0.25);
       _updateDuration = TimeSpan.FromSeconds(0.5);
-      _sut = Model.Create(_expiration, _updateDuration);
+      _sut = Model.Create(_expiration, _projectionDataService);
       
       var query1 = _sut.GetLatestProjectionTime();
       Assert.That(query1, Is.Not.Null);
@@ -45,7 +47,7 @@ namespace ProjectionSystem.Samples.Departments {
       // Reconfigure from setup
       _expiration = TimeSpan.FromSeconds(0.25);
       _updateDuration = TimeSpan.FromSeconds(0.5);
-      _sut = Model.Create(_expiration, _updateDuration);
+      _sut = Model.Create(_expiration, _projectionDataService);
 
       _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
@@ -54,9 +56,7 @@ namespace ProjectionSystem.Samples.Departments {
       Assert.That(query1, Is.Not.Null);
       Assert.That(_sut.State, Is.InstanceOf<UpdatingState<Department>>());
 
-      Thread.Sleep(_updateDuration.Add(TimeSpan.FromSeconds(0.10))); // Wait for update to finish
-      Assert.That(_sut.State, Is.InstanceOf<CurrentState<Department>>());
-
+      Thread.Sleep(_updateDuration); // Wait for update to finish
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
       Assert.That(_sut.State, Is.InstanceOf<ExpiredState<Department>>());
     }
@@ -152,7 +152,7 @@ namespace ProjectionSystem.Samples.Departments {
 
       Thread.Sleep(_expiration.Add(_updateDuration).Add(_updateDuration)); // Wait until last refresh is certainly finished
 
-      //Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
+      Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
     }
   }
 }
