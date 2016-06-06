@@ -15,7 +15,8 @@ namespace ProjectionSystem.Samples.Departments {
       IProjectionDataService<Department> departmentsProjectionDataService,
       ITraceLogger traceLogger,
       ISyncLockFactory syncLockFactory,
-      TaskScheduler taskScheduler) : base(expiration, departmentsProjectionDataService, traceLogger, syncLockFactory, taskScheduler) {
+      IStateTransitionGuardFactory transitionGuardFactory,
+      TaskScheduler taskScheduler) : base(expiration, departmentsProjectionDataService, traceLogger, syncLockFactory, transitionGuardFactory, taskScheduler) {
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       _syncLockFactory = syncLockFactory;
       _updateStateLockObj = new object();
@@ -23,8 +24,8 @@ namespace ProjectionSystem.Samples.Departments {
 
     public IEnumerable<Department> GetProjectedDepartments() {
       using (_syncLockFactory.CreateFor(_updateStateLockObj)) {
-        if (State.Id == StateId.Uninitialised) SwitchToCreatingState();
-        if (State.Id == StateId.Expired) SwitchToUpdatingState();
+        if (State.Id == StateId.Uninitialised) TransitionToCreatingState();
+        if (State.Id == StateId.Expired) TransitionToUpdatingState();
       }
       return State.GetProjectedData();
     }

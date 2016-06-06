@@ -2,11 +2,11 @@
 
 namespace ProjectionSystem {
   public interface IProjectionSystem {
-    IProjectionSystemState State { get; }
+    IState State { get; }
   }
 
-  public interface IProjectionSystem<TItem> : IProjectionSystem, IProjectionSystemStateSwitcher
+  public interface IProjectionSystem<TItem> : IProjectionSystem, IStateTransitioner
     where TItem : IProjectedItem {
-    new IProjectionSystemState<TItem> State { get; }
+    new IState<TItem> State { get; }
   }
 }

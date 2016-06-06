@@ -4,32 +4,37 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
-  public class CurrentState<TItem> : ProjectionSystemState<TItem> where TItem : IProjectedItem {
+  public class CurrentState<TItem> : State<TItem> where TItem : IProjectedItem {
+    readonly IProjectionSystem<TItem> _projectionSystem;
+    readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
     readonly TimeSpan _timeout;
     readonly TaskScheduler _taskScheduler;
     IEnumerable<TItem> _projectedData;
 
-    public CurrentState(TimeSpan timeout, TaskScheduler taskScheduler) {
+    public CurrentState(IProjectionSystem<TItem> projectionSystem, IStateTransitionGuardFactory stateTransitionGuardFactory, TimeSpan timeout, TaskScheduler taskScheduler) {
+      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+      if (stateTransitionGuardFactory == null) throw new ArgumentNullException(nameof(stateTransitionGuardFactory));
       if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
+      _projectionSystem = projectionSystem;
+      _stateTransitionGuardFactory = stateTransitionGuardFactory;
       _timeout = timeout;
       _taskScheduler = taskScheduler;
     }
 
     public override StateId Id => StateId.Current;
 
-    public override void Enter(IProjectionSystem<TItem> projectionSystem, IProjectionSystemState<TItem> previousState) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      StateTransitionGuard(
-        new[] { StateId.Creating, StateId.Updating },
-        previousState.Id);
+    public override void Enter(IState<TItem> previousState) {
+      var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Creating, StateId.Updating });
+      transitionGuard.PreviousStateRequired(previousState);
+      transitionGuard.StateTransitionAllowed(previousState);
 
       _projectedData = previousState.GetProjectedData(); // Get the projection that was created or updated
 
       // Expire after the specified amount of time
       Task.Factory.StartNew(async () => {
         await Task.Delay(_timeout);
-        projectionSystem.SwitchToExpiredState();
+        _projectionSystem.TransitionToExpiredState();
       }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
     }
 

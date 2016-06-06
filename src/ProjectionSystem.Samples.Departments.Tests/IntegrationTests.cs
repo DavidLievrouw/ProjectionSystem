@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils;
 using NUnit.Framework;
+using ProjectionSystem.States;
 
 namespace ProjectionSystem.Samples.Departments {
   [TestFixture(Category = "Integration")]
@@ -18,6 +19,7 @@ namespace ProjectionSystem.Samples.Departments {
     TimeSpan _expiration;
     TimeSpan _refreshDuration;
     ConsoleTraceLogger _traceLogger;
+    StateTransitionGuardFactory _transitionGuardFactory;
 
     [OneTimeSetUp]
     public void OneTimeSetUp() {
@@ -33,7 +35,8 @@ namespace ProjectionSystem.Samples.Departments {
       _realSyncLockFactory = new RealSyncLockFactory();
       _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
       _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
-      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _realSyncLockFactory, _taskScheduler);
+      _transitionGuardFactory = new StateTransitionGuardFactory();
+      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _realSyncLockFactory, _transitionGuardFactory, _taskScheduler);
     }
 
     [Test]
