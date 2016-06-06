@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using System.Threading.Tasks;
-using DavidLievrouw.Utils;
 using NUnit.Framework;
 using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
@@ -12,9 +10,8 @@ namespace ProjectionSystem.Samples.Departments {
   [TestFixture(Category = "Integration")]
   public class IntegrationTests {
     TimeSpan _expiration;
-    TimeSpan _refreshDuration;
+    TimeSpan _updateDuration;
     IProjectionSystem<Department> _sut;
-    DepartmentsProjectionDataService _projectionDataService;
 
     [OneTimeSetUp]
     public void OneTimeSetUp() {
@@ -23,33 +20,45 @@ namespace ProjectionSystem.Samples.Departments {
 
     [SetUp]
     public void SetUp() {
-      var stateSyncLockFactory = new RealSyncLockFactory(new object());
-      var systemClock = new RealSystemClock();
-      var traceLogger = new ConsoleTraceLogger(systemClock);
-      var taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-      var createProjectionLockFactory = new RealSyncLockFactory(new object());
-      var updateProjectionLockFactory = new RealSyncLockFactory(new object());
-      var transitionGuardFactory = new StateTransitionGuardFactory();
-      
       _expiration = TimeSpan.FromSeconds(0.5);
-      _refreshDuration = TimeSpan.FromSeconds(0.25);
-      _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, systemClock, traceLogger);
-      _sut = new DepartmentsProjectionSystemFactory(stateSyncLockFactory, traceLogger).Create(
-        new UninitialisedState<Department>(transitionGuardFactory),
-        new CurrentState<Department>(transitionGuardFactory, _expiration, taskScheduler),
-        new ExpiredState<Department>(transitionGuardFactory),
-        new UpdatingState<Department>(transitionGuardFactory, _projectionDataService, updateProjectionLockFactory, taskScheduler),
-        new CreatingState<Department>(transitionGuardFactory, _projectionDataService, createProjectionLockFactory));
+      _updateDuration = TimeSpan.FromSeconds(0.25);
+      _sut = Model.Create(_expiration, _updateDuration);
     }
 
     [Test]
     public void WhenProjectionExpiresBeforeCreateIsFinished_ExpiredDataIsStillAccessible() {
-      Assert.Fail("Implement!");
+      // Reconfigure from setup
+      _expiration = TimeSpan.FromSeconds(0.25);
+      _updateDuration = TimeSpan.FromSeconds(0.5);
+      _sut = Model.Create(_expiration, _updateDuration);
+      
+      var query1 = _sut.GetLatestProjectionTime();
+      Assert.That(query1, Is.Not.Null);
+      Assert.That(_sut.State, Is.InstanceOf<CurrentState<Department>>());
+
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
+      Assert.That(_sut.State, Is.InstanceOf<ExpiredState<Department>>());
     }
 
     [Test]
     public void WhenProjectionExpiresBeforeUpdateIsFinished_ExpiredDataIsStillAccessible() {
-      Assert.Fail("Implement!");
+      // Reconfigure from setup
+      _expiration = TimeSpan.FromSeconds(0.25);
+      _updateDuration = TimeSpan.FromSeconds(0.5);
+      _sut = Model.Create(_expiration, _updateDuration);
+
+      _sut.GetLatestProjectionTime();
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
+
+      var query1 = _sut.GetLatestProjectionTime(); // Trigger update
+      Assert.That(query1, Is.Not.Null);
+      Assert.That(_sut.State, Is.InstanceOf<UpdatingState<Department>>());
+
+      Thread.Sleep(_updateDuration.Add(TimeSpan.FromSeconds(0.10))); // Wait for update to finish
+      Assert.That(_sut.State, Is.InstanceOf<CurrentState<Department>>());
+
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
+      Assert.That(_sut.State, Is.InstanceOf<ExpiredState<Department>>());
     }
 
     [Test]
@@ -72,7 +81,7 @@ namespace ProjectionSystem.Samples.Departments {
       var query1 = _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
       _sut.GetLatestProjectionTime(); // Trigger update
-      Thread.Sleep(_expiration.Add(_refreshDuration).Add(_refreshDuration)); // Wait until refresh is certainly finished
+      Thread.Sleep(_expiration.Add(_updateDuration).Add(_updateDuration)); // Wait until refresh is certainly finished
       var query3 = _sut.GetLatestProjectionTime();
       Assert.That(query3, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
     }
@@ -141,9 +150,9 @@ namespace ProjectionSystem.Samples.Departments {
       threads.ForEach(t => t.Join());
       watch.Stop();
 
-      Thread.Sleep(_expiration.Add(_refreshDuration).Add(_refreshDuration)); // Wait until last refresh is certainly finished
+      Thread.Sleep(_expiration.Add(_updateDuration).Add(_updateDuration)); // Wait until last refresh is certainly finished
 
-      Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
+      //Assert.That(_projectionDataService.RefreshCount, Is.EqualTo(3));
     }
   }
 }

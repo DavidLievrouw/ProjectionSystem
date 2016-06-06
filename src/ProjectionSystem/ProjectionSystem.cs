@@ -40,6 +40,8 @@ namespace ProjectionSystem {
 
     public IState<TItem> State { get; private set; }
 
+    IState IProjectionSystem.State => State;
+
     public void TransitionToExpiredState() {
       using (_stateLockFactory.Create()) {
         var previousState = State;

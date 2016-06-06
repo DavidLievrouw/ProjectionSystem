@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using ProjectionSystem.States;
 
 namespace ProjectionSystem {
   public interface IProjectionSystem {
@@ -6,6 +7,7 @@ namespace ProjectionSystem {
     void TransitionToCreatingState();
     void TransitionToUpdatingState();
     void TransitionToCurrentState();
+    IState State { get; }
   }
 
   public interface IProjectionSystem<out TItem> : IProjectionSystem
