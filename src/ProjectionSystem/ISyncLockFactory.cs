@@ -1,5 +1,7 @@
-﻿namespace ProjectionSystem {
+﻿using System.Threading.Tasks;
+
+namespace ProjectionSystem {
   public interface ISyncLockFactory {
-    ISyncLock Create();
+    Task<ISyncLock> Create();
   }
 }

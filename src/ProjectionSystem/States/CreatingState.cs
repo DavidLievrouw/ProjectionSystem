@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.States {
@@ -24,24 +25,24 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Creating;
 
-    public override void Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
+    public override async Task Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Uninitialised });
       transitionGuard.PreviousStateRequired(previousState);
       transitionGuard.StateTransitionAllowed(previousState);
 
       // Make sure only one refresh action is done at a time
-      using (_syncLockFactory.Create()) { 
-        _projectionDataService.RefreshProjection();
-        _projectedData = _projectionDataService.GetProjection();
+      using (await _syncLockFactory.Create()) {
+        await _projectionDataService.UpdateProjection();
+        _projectedData = await _projectionDataService.GetProjection();
       }
 
-      projectionSystem.TransitionToCurrentState();
+      await projectionSystem.TransitionToCurrentState();
     }
 
-    public override IEnumerable<TItem> GetProjection() {
+    public override async Task<IEnumerable<TItem>> GetProjection() {
       // Do not allow querying of the data, until creation is finished
-      using (_syncLockFactory.Create()) {
+      using (await _syncLockFactory.Create()) {
         return _projectedData;
       }
     }

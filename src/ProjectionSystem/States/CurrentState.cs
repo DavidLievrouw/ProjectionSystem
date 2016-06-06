@@ -25,23 +25,23 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Current;
 
-    public override void Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
+    public override async Task Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Creating, StateId.Updating });
       transitionGuard.PreviousStateRequired(previousState);
       transitionGuard.StateTransitionAllowed(previousState);
 
-      _projectedData = previousState.GetProjection(); // Get the projection that was created or updated
+      _projectedData = await previousState.GetProjection(); // Get the projection that was created or updated
 
       // Expire after the specified amount of time
-      Task.Factory.StartNew(async () => {
+      await Task.Factory.StartNew(async () => {
         await Task.Delay(_timeout);
-        projectionSystem.TransitionToExpiredState();
+        await projectionSystem.TransitionToExpiredState();
       }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
     }
 
-    public override IEnumerable<TItem> GetProjection() {
-      return _projectedData;
+    public override Task<IEnumerable<TItem>> GetProjection() {
+      return Task.FromResult(_projectedData);
     }
   }
 }

@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ProjectionSystem {
   public class RealSyncLockFactory : ISyncLockFactory {
-    readonly object _toLock;
+    readonly SemaphoreSlim _semaphore;
 
-    public RealSyncLockFactory(object toLock) {
-      if (toLock == null) throw new ArgumentNullException(nameof(toLock));
-      _toLock = toLock;
+    public RealSyncLockFactory(SemaphoreSlim semaphore) {
+      if (semaphore == null) throw new ArgumentNullException(nameof(semaphore));
+      _semaphore = semaphore;
     }
 
-    public ISyncLock Create() {
-      return new RealSyncLock(_toLock);
+    public async Task<ISyncLock> Create() {
+      var realLock = new RealSyncLock(_semaphore);
+      await realLock.Lock();
+      return realLock;
     }
   }
 }

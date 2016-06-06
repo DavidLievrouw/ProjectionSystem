@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectionSystem.States;
 
 namespace ProjectionSystem {
   public interface IProjectionSystem {
-    void TransitionToExpiredState();
-    void TransitionToCreatingState();
-    void TransitionToUpdatingState();
-    void TransitionToCurrentState();
+    Task TransitionToExpiredState();
+    Task TransitionToCreatingState();
+    Task TransitionToUpdatingState();
+    Task TransitionToCurrentState();
     IState State { get; }
   }
 
-  public interface IProjectionSystem<out TItem> : IProjectionSystem
+  public interface IProjectionSystem<TItem> : IProjectionSystem
     where TItem : IProjectedItem {
-    IEnumerable<TItem> GetProjection();
+    Task<IEnumerable<TItem>> GetProjection();
   }
 }

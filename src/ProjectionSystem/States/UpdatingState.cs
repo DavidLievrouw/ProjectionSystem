@@ -30,27 +30,27 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Updating;
 
-    public override void Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
+    public override async Task Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Expired });
       transitionGuard.PreviousStateRequired(previousState);
       transitionGuard.StateTransitionAllowed(previousState);
       
-      _projectedData = previousState.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
+      _projectedData = await previousState.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
 
-      Task.Factory.StartNew(() => {
+      await Task.Factory.StartNew(async () => {
         // Make sure only one update action is done at a time
-        using (_syncLockFactory.Create()) {
-          _projectionDataService.RefreshProjection();
-          _projectedData = _projectionDataService.GetProjection();
+        using (await _syncLockFactory.Create()) {
+          await _projectionDataService.UpdateProjection();
+          _projectedData = await _projectionDataService.GetProjection();
         }
 
-        projectionSystem.TransitionToCurrentState();
+        await projectionSystem.TransitionToCurrentState();
       }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
     }
 
-    public override IEnumerable<TItem> GetProjection() {
-      return _projectedData;
+    public override Task<IEnumerable<TItem>> GetProjection() {
+      return Task.FromResult(_projectedData);
     }
   }
 }

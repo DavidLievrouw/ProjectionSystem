@@ -11,12 +11,11 @@ using ProjectionSystem.States.Transitions;
 namespace ProjectionSystem.IntegrationTests {
   public static class Model {
     public static IProjectionSystem<Department> Create(TimeSpan expiration, IProjectionDataService<Department> projectionDataService) {
-      var stateSyncLockFactory = new RealSyncLockFactory(new object());
       var systemClock = new RealSystemClock();
       var traceLogger = new ConsoleTraceLogger(systemClock);
       var taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-      var createProjectionLockFactory = new RealSyncLockFactory(new object());
-      var updateProjectionLockFactory = new RealSyncLockFactory(new object());
+      var createProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
+      var updateProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var transitionGuardFactory = new StateTransitionGuardFactory();
 
       return new ProjectionSystem<Department>(
@@ -25,20 +24,19 @@ namespace ProjectionSystem.IntegrationTests {
         new CurrentState<Department>(transitionGuardFactory, expiration, taskScheduler),
         new ExpiredState<Department>(transitionGuardFactory),
         new UpdatingState<Department>(transitionGuardFactory, projectionDataService, updateProjectionLockFactory, taskScheduler),
-        stateSyncLockFactory,
         traceLogger);
     }
 
     public class ProjectionDataServiceForTest : IProjectionDataService<Department> {
-      readonly TimeSpan _refreshDuration;
+      readonly TimeSpan _updateDuration;
       readonly ISystemClock _systemClock;
       readonly ITraceLogger _traceLogger;
       readonly IEnumerable<Department> _projection;
       int _refreshCount;
 
-      public ProjectionDataServiceForTest(TimeSpan refreshDuration) {
-        if (refreshDuration <= TimeSpan.Zero) throw new ArgumentException("An invalid refresh duration has been specified.", nameof(refreshDuration));
-        _refreshDuration = refreshDuration;
+      public ProjectionDataServiceForTest(TimeSpan updateDuration) {
+        if (updateDuration <= TimeSpan.Zero) throw new ArgumentException("An invalid refresh duration has been specified.", nameof(updateDuration));
+        _updateDuration = updateDuration;
         _systemClock = new RealSystemClock();
         _traceLogger = new ConsoleTraceLogger(_systemClock);
         _projection = new[] {
@@ -77,15 +75,14 @@ namespace ProjectionSystem.IntegrationTests {
 
       public int RefreshCount => _refreshCount;
 
-      public IEnumerable<Department> GetProjection() {
-        return _projection;
+      public Task<IEnumerable<Department>> GetProjection() {
+        return Task.FromResult(_projection);
       }
 
-      public void RefreshProjection() {
+      public async Task UpdateProjection() {
         // Fake update the projection
         _traceLogger.Verbose("Refreshing projection...");
-        var delayMillis = (int)_refreshDuration.TotalMilliseconds;
-        Thread.Sleep(delayMillis);
+        await Task.Delay(_updateDuration);
         foreach (var department in _projection) {
           department.ProjectionTime = _systemClock.UtcNow;
         }
