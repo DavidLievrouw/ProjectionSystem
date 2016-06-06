@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
@@ -7,14 +8,17 @@ namespace ProjectionSystem.States {
     where TItem : IProjectedItem {
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
+    readonly TaskScheduler _taskScheduler;
     readonly object _updateProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
-    public UpdatingState(IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory) {
+    public UpdatingState(IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory, TaskScheduler taskScheduler) {
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
+      if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
+      _taskScheduler = taskScheduler;
       _updateProjectionLockObj = new object();
     }
 
@@ -36,7 +40,7 @@ namespace ProjectionSystem.States {
         }
 
         projectionSystem.SwitchToCurrentState();
-      });
+      }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
     }
 
     public override IEnumerable<TItem> GetProjectedData() {

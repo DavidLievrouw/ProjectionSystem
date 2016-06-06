@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using ProjectionSystem.Diagnostics;
 using ProjectionSystem.States;
 
@@ -17,15 +18,21 @@ namespace ProjectionSystem {
     readonly ISyncLockFactory _stateLockFactory;
     readonly object _stateLockObj;
 
-    public ProjectionSystem(TimeSpan timeout, IProjectionDataService<TItem> projectionDataService, ITraceLogger traceLogger, ISyncLockFactory stateLockFactory) {
+    public ProjectionSystem(
+      TimeSpan timeout,
+      IProjectionDataService<TItem> projectionDataService,
+      ITraceLogger traceLogger,
+      ISyncLockFactory stateLockFactory,
+      TaskScheduler taskScheduler) {
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
       if (stateLockFactory == null) throw new ArgumentNullException(nameof(stateLockFactory));
+      if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
       _creatingState = new CreatingState<TItem>(projectionDataService, stateLockFactory);
-      _currentState = new CurrentState<TItem>(timeout);
+      _currentState = new CurrentState<TItem>(timeout, taskScheduler);
       _expiredState = new ExpiredState<TItem>();
-      _updatingState = new UpdatingState<TItem>(projectionDataService, stateLockFactory);
+      _updatingState = new UpdatingState<TItem>(projectionDataService, stateLockFactory, taskScheduler);
       _traceLogger = traceLogger;
       _stateLockFactory = stateLockFactory;
       _stateLockObj = new object();
@@ -35,7 +42,7 @@ namespace ProjectionSystem {
 
     public new IProjectionSystemState<TItem> State {
       get { return base.State as IProjectionSystemState<TItem>; }
-      protected set { base.State = value; }
+      private set { base.State = value; }
     }
 
     public void SwitchToExpiredState() {

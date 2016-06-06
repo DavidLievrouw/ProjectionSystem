@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using DavidLievrouw.Utils;
 using NUnit.Framework;
 
@@ -13,9 +14,15 @@ namespace ProjectionSystem.Samples.Departments {
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
     SyncLockFactory _syncLockFactory;
+    TaskScheduler _taskScheduler;
     TimeSpan _expiration;
     TimeSpan _refreshDuration;
     ConsoleTraceLogger _traceLogger;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp() {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+    }
 
     [SetUp]
     public void SetUp() {
@@ -24,8 +31,9 @@ namespace ProjectionSystem.Samples.Departments {
       _refreshDuration = TimeSpan.FromSeconds(0.25);
       _traceLogger = new ConsoleTraceLogger(_systemClock);
       _syncLockFactory = new SyncLockFactory();
+      _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
       _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
-      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _syncLockFactory);
+      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _syncLockFactory, _taskScheduler);
     }
 
     [Test]

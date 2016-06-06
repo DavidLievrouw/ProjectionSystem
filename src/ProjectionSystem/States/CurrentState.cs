@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
   public class CurrentState<TItem> : ProjectionSystemState<TItem> where TItem : IProjectedItem {
     readonly TimeSpan _timeout;
-    Timer _timer;
+    readonly TaskScheduler _taskScheduler;
     IEnumerable<TItem> _projectedData;
 
-    public CurrentState(TimeSpan timeout) {
+    public CurrentState(TimeSpan timeout, TaskScheduler taskScheduler) {
+      if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
       _timeout = timeout;
+      _taskScheduler = taskScheduler;
     }
 
     public override StateId Id => StateId.Current;
@@ -24,10 +27,10 @@ namespace ProjectionSystem.States {
       _projectedData = previousState.GetProjectedData(); // Get the projection that was created or updated
 
       // Expire after the specified amount of time
-      _timer = new Timer(_ => {
+      Task.Factory.StartNew(async () => {
+        await Task.Delay(_timeout);
         projectionSystem.SwitchToExpiredState();
-        _timer.Dispose();
-      }, null, (int)_timeout.TotalMilliseconds, Timeout.Infinite);
+      }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
     }
 
     public override IEnumerable<TItem> GetProjectedData() {

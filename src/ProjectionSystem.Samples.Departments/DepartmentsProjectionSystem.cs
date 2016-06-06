@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ProjectionSystem.Diagnostics;
 using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
@@ -13,7 +14,8 @@ namespace ProjectionSystem.Samples.Departments {
       TimeSpan expiration,
       IProjectionDataService<Department> departmentsProjectionDataService,
       ITraceLogger traceLogger,
-      ISyncLockFactory syncLockFactory) : base(expiration, departmentsProjectionDataService, traceLogger, syncLockFactory) {
+      ISyncLockFactory syncLockFactory,
+      TaskScheduler taskScheduler) : base(expiration, departmentsProjectionDataService, traceLogger, syncLockFactory, taskScheduler) {
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       _syncLockFactory = syncLockFactory;
       _updateStateLockObj = new object();
