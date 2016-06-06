@@ -73,6 +73,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="DeterministicTaskScheduler.cs" />
     <Compile Include="Diagnostics\ExceptionFormatterTests.cs" />
     <Compile Include="Diagnostics\LogEntryFactoryTests.cs" />
     <Compile Include="Diagnostics\LogEntryTests.cs" />
