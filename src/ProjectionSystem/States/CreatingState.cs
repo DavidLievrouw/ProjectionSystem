@@ -25,7 +25,7 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Creating;
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Uninitialised });
       transitionGuard.PreviousStateRequired(projectionSystem.State);
@@ -36,9 +36,10 @@ namespace ProjectionSystem.States {
         await _projectionDataService.UpdateProjection();
         _projectedData = await _projectionDataService.GetProjection();
       }
+    }
 
-      projectionSystem.State = this;
-
+    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+      // Done creating
       await projectionSystem.TransitionToCurrentState();
     }
 

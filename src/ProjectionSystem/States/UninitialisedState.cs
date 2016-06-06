@@ -15,10 +15,13 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Uninitialised;
 
-    public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task Prepare(IProjectionSystem<TItem> projectionSystem) {
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new StateId[0]);
       transitionGuard.StateTransitionAllowed(projectionSystem.State);
-      projectionSystem.State = this;
+      return Task.FromResult(true);
+    }
+
+    public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
       return Task.FromResult(true);
     }
 

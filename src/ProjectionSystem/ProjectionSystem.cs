@@ -39,30 +39,36 @@ namespace ProjectionSystem {
       State = uninitialisedState;
     }
 
-    public IState<TItem> State { get; set; }
-
-    IState IProjectionSystem.State => State;
+    public IState<TItem> State { get; private set; }
 
     public async Task TransitionToExpiredState() {
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
+      await _expiredState.Prepare(this);
+      State = _expiredState;
       await _expiredState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToCreatingState() {
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
+      await _creatingState.Prepare(this);
+      State = _creatingState;
       await _creatingState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToUpdatingState() {
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
+      await _updatingState.Prepare(this);
+      State = _updatingState;
       await _updatingState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }
 
     public async Task TransitionToCurrentState() {
       _traceLogger.Verbose($"Entering '{State.Id}' state.");
+      await _currentState.Prepare(this);
+      State = _currentState;
       await _currentState.Enter(this);
       _traceLogger.Verbose($"Entered '{State.Id}' state.");
     }

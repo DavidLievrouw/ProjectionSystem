@@ -30,16 +30,16 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Updating;
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Expired });
       transitionGuard.PreviousStateRequired(projectionSystem.State);
       transitionGuard.StateTransitionAllowed(projectionSystem.State);
       
       _projectedData = await projectionSystem.State.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
+    }
 
-      projectionSystem.State = this;
-
+    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
       await Task.Factory.StartNew(async () => {
         // Make sure only one update action is done at a time
         using (await _syncLockFactory.Create()) {

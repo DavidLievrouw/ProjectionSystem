@@ -8,12 +8,11 @@ namespace ProjectionSystem {
     Task TransitionToCreatingState();
     Task TransitionToUpdatingState();
     Task TransitionToCurrentState();
-    IState State { get; }
   }
 
   public interface IProjectionSystem<TItem> : IProjectionSystem
     where TItem : IProjectedItem {
     Task<IEnumerable<TItem>> GetProjection();
-    new IState<TItem> State { get; set; }
+    IState<TItem> State { get; }
   }
 }
