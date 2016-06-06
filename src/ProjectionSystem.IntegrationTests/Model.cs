@@ -6,6 +6,7 @@ using DavidLievrouw.Utils;
 using ProjectionSystem.Diagnostics;
 using ProjectionSystem.IntegrationTests.Items;
 using ProjectionSystem.States;
+using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.IntegrationTests {
   public static class Model {

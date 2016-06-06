@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ProjectionSystem.States {
+namespace ProjectionSystem.States.Transitions {
   public class StateTransitionGuardFactory : IStateTransitionGuardFactory {
     public IStateTransitionGuard CreateFor(IState state, IEnumerable<StateId> allowedPreviousStates) {
       if (state == null) throw new ArgumentNullException(nameof(state));

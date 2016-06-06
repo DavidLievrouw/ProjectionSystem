@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ProjectionSystem.States {
+namespace ProjectionSystem.States.Transitions {
   public class StateTransitionGuard : IStateTransitionGuard {
     readonly IState _state;
     readonly IEnumerable<StateId> _allowedPreviousStates;

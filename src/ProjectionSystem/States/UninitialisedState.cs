@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.States {
   public class UninitialisedState<TItem> : State<TItem>

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.States {
   public class UpdatingState<TItem> : State<TItem>
