@@ -2,7 +2,7 @@ using System;
 using DavidLievrouw.Utils;
 using ProjectionSystem.Diagnostics;
 
-namespace ProjectionSystem.Samples.Departments {
+namespace ProjectionSystem.IntegrationTests {
   public class ConsoleTraceLogger : ITraceLogger {
     readonly ISystemClock _systemClock;
 

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
-using ProjectionSystem.Samples.Departments.Items;
+using ProjectionSystem.IntegrationTests.Items;
 using ProjectionSystem.States;
 
-namespace ProjectionSystem.Samples.Departments {
+namespace ProjectionSystem.IntegrationTests {
   [TestFixture(Category = "Integration")]
   public class IntegrationTests {
     TimeSpan _expiration;

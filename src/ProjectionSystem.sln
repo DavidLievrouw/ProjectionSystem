@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem.Tests", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem", "ProjectionSystem\ProjectionSystem.csproj", "{CA534837-581F-46B7-B46E-2BBC693E1576}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem.Samples.Departments.Tests", "ProjectionSystem.Samples.Departments.Tests\ProjectionSystem.Samples.Departments.Tests.csproj", "{78DDCAFC-5F3D-4375-8742-A4E793F6D096}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjectionSystem.IntegrationTests", "ProjectionSystem.Samples.Departments.Tests\ProjectionSystem.IntegrationTests.csproj", "{78DDCAFC-5F3D-4375-8742-A4E793F6D096}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

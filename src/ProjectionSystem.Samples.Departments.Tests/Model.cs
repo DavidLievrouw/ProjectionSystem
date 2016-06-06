@@ -4,10 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils;
 using ProjectionSystem.Diagnostics;
-using ProjectionSystem.Samples.Departments.Items;
+using ProjectionSystem.IntegrationTests.Items;
 using ProjectionSystem.States;
 
-namespace ProjectionSystem.Samples.Departments {
+namespace ProjectionSystem.IntegrationTests {
   public static class Model {
     public static IProjectionSystem<Department> Create(TimeSpan expiration, IProjectionDataService<Department> projectionDataService) {
       var stateSyncLockFactory = new RealSyncLockFactory(new object());
