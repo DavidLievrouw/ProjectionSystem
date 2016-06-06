@@ -1,57 +1,51 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using ProjectionSystem.Diagnostics;
 using ProjectionSystem.States;
 
 namespace ProjectionSystem {
-  public abstract class ProjectionSystem : IProjectionSystem {
-    public IState State { get; protected set; }
-  }
-
-  public class ProjectionSystem<TItem> : ProjectionSystem, IProjectionSystem<TItem>
+  public class ProjectionSystem<TItem> : IProjectionSystem<TItem>
     where TItem : IProjectedItem {
+    readonly IState<TItem> _creatingState;
     readonly IState<TItem> _currentState;
     readonly IState<TItem> _expiredState;
     readonly IState<TItem> _updatingState;
-    readonly IState<TItem> _creatingState;
-    readonly ITraceLogger _traceLogger;
     readonly ISyncLockFactory _stateLockFactory;
+    readonly ITraceLogger _traceLogger;
 
     public ProjectionSystem(
-      TimeSpan timeout,
-      IProjectionDataService<TItem> projectionDataService,
-      ITraceLogger traceLogger,
+      IState<TItem> uninitialisedState,
+      IState<TItem> creatingState,
+      IState<TItem> currentState,
+      IState<TItem> expiredState,
+      IState<TItem> updatingState,
       ISyncLockFactory stateLockFactory,
-      ISyncLockFactory createProjectionLockFactory,
-      ISyncLockFactory updateProjectionLockFactory,
-      IStateTransitionGuardFactory transitionGuardFactory,
-      TaskScheduler taskScheduler) {
-      if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
-      if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
+      ITraceLogger traceLogger) {
+      if (uninitialisedState == null) throw new ArgumentNullException(nameof(uninitialisedState));
+      if (creatingState == null) throw new ArgumentNullException(nameof(creatingState));
+      if (currentState == null) throw new ArgumentNullException(nameof(currentState));
+      if (expiredState == null) throw new ArgumentNullException(nameof(expiredState));
+      if (updatingState == null) throw new ArgumentNullException(nameof(updatingState));
       if (stateLockFactory == null) throw new ArgumentNullException(nameof(stateLockFactory));
-      if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
-      if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
-      _creatingState = new CreatingState<TItem>(this, transitionGuardFactory, projectionDataService, createProjectionLockFactory);
-      _currentState = new CurrentState<TItem>(this, transitionGuardFactory, timeout, taskScheduler);
-      _expiredState = new ExpiredState<TItem>(transitionGuardFactory);
-      _updatingState = new UpdatingState<TItem>(this, transitionGuardFactory, projectionDataService, updateProjectionLockFactory, taskScheduler);
-      _traceLogger = traceLogger;
+      if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
+      _creatingState = creatingState;
+      _currentState = currentState;
+      _expiredState = expiredState;
+      _updatingState = updatingState;
       _stateLockFactory = stateLockFactory;
+      _traceLogger = traceLogger;
 
-      State = new UninitialisedState<TItem>(transitionGuardFactory);
+      State = uninitialisedState;
     }
 
-    public new IState<TItem> State {
-      get { return base.State as IState<TItem>; }
-      private set { base.State = value; }
-    }
+    public IState<TItem> State { get; private set; }
 
     public void TransitionToExpiredState() {
       using (_stateLockFactory.Create()) {
         var previousState = State;
         State = _expiredState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
-        _expiredState.Enter(previousState);
+        _expiredState.Enter(this, previousState);
         _traceLogger.Verbose($"Entered '{State.Id}' state.");
       }
     }
@@ -61,7 +55,7 @@ namespace ProjectionSystem {
         var previousState = State;
         State = _creatingState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
-        _creatingState.Enter(previousState);
+        _creatingState.Enter(this, previousState);
         _traceLogger.Verbose($"Entered '{State.Id}' state.");
       }
     }
@@ -71,7 +65,7 @@ namespace ProjectionSystem {
         var previousState = State;
         State = _updatingState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
-        _updatingState.Enter(previousState);
+        _updatingState.Enter(this, previousState);
         _traceLogger.Verbose($"Entered '{State.Id}' state.");
       }
     }
@@ -81,9 +75,17 @@ namespace ProjectionSystem {
         var previousState = State;
         State = _currentState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
-        _currentState.Enter(previousState);
+        _currentState.Enter(this, previousState);
         _traceLogger.Verbose($"Entered '{State.Id}' state.");
       }
+    }
+
+    public IEnumerable<TItem> GetProjection() {
+      using (_stateLockFactory.Create()) {
+        if (State.Id == StateId.Uninitialised) TransitionToCreatingState();
+        if (State.Id == StateId.Expired) TransitionToUpdatingState();
+      }
+      return State.GetProjection();
     }
   }
 }

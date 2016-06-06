@@ -3,12 +3,12 @@
 namespace ProjectionSystem.States {
   public interface IState {
     StateId Id { get; }
-    void Enter(IState previousState);
+    void Enter(IProjectionSystem projectionSystem, IState previousState);
   }
 
   public interface IState<TItem> : IState
     where TItem : IProjectedItem {
-    void Enter(IState<TItem> previousState);
-    IEnumerable<TItem> GetProjectedData();
+    void Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState);
+    IEnumerable<TItem> GetProjection();
   }
 }

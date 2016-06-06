@@ -14,16 +14,16 @@ namespace ProjectionSystem.States {
 
     public override StateId Id => StateId.Expired;
 
-    public override void Enter(IState<TItem> previousState) {
+    public override void Enter(IProjectionSystem<TItem> projectionSystem, IState<TItem> previousState) {
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(this, new[] { StateId.Current });
       transitionGuard.PreviousStateRequired(previousState);
       transitionGuard.StateTransitionAllowed(previousState);
 
       // Keep track of the expired projection
-      _projectedData = previousState.GetProjectedData();
+      _projectedData = previousState.GetProjection();
     }
 
-    public override IEnumerable<TItem> GetProjectedData() {
+    public override IEnumerable<TItem> GetProjection() {
       return _projectedData;
     }
   }

@@ -1,12 +1,15 @@
-﻿using ProjectionSystem.States;
+﻿using System.Collections.Generic;
 
 namespace ProjectionSystem {
   public interface IProjectionSystem {
-    IState State { get; }
+    void TransitionToExpiredState();
+    void TransitionToCreatingState();
+    void TransitionToUpdatingState();
+    void TransitionToCurrentState();
   }
 
-  public interface IProjectionSystem<TItem> : IProjectionSystem, IStateTransitioner
+  public interface IProjectionSystem<out TItem> : IProjectionSystem
     where TItem : IProjectedItem {
-    new IState<TItem> State { get; }
+    IEnumerable<TItem> GetProjection();
   }
 }

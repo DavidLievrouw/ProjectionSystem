@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="ConsoleTraceLogger.cs" />
     <Compile Include="IntegrationTests.cs" />
+    <Compile Include="ProjectionSystemExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

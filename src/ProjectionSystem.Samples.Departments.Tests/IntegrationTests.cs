@@ -1,30 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils;
 using NUnit.Framework;
+using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
 
 namespace ProjectionSystem.Samples.Departments {
   [TestFixture(Category = "Integration")]
   public class IntegrationTests {
-    DepartmentsProjectionSystem _sut;
-    DepartmentsProjectionDataService _projectionDataService;
-    RealSystemClock _systemClock;
-    TaskScheduler _taskScheduler;
     TimeSpan _expiration;
     TimeSpan _refreshDuration;
-    ConsoleTraceLogger _traceLogger;
-    StateTransitionGuardFactory _transitionGuardFactory;
-    object _stateLockObj;
-    object _createProjectionLockObj;
-    object _updateProjectionLockObj;
-    RealSyncLockFactory _updateProjectionLockFactory;
-    RealSyncLockFactory _createProjectionLockFactory;
-    RealSyncLockFactory _stateSyncLockFactory;
+    IProjectionSystem<Department> _sut;
+    DepartmentsProjectionDataService _projectionDataService;
 
     [OneTimeSetUp]
     public void OneTimeSetUp() {
@@ -33,29 +23,23 @@ namespace ProjectionSystem.Samples.Departments {
 
     [SetUp]
     public void SetUp() {
-      _stateLockObj = new object();
-      _stateSyncLockFactory = new RealSyncLockFactory(_stateLockObj);
-      _createProjectionLockObj = new object();
-      _createProjectionLockFactory = new RealSyncLockFactory(_createProjectionLockObj);
-      _updateProjectionLockObj = new object();
-      _updateProjectionLockFactory = new RealSyncLockFactory(_updateProjectionLockObj);
-
-      _systemClock = new RealSystemClock();
+      var stateSyncLockFactory = new RealSyncLockFactory(new object());
+      var systemClock = new RealSystemClock();
+      var traceLogger = new ConsoleTraceLogger(systemClock);
+      var taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+      var createProjectionLockFactory = new RealSyncLockFactory(new object());
+      var updateProjectionLockFactory = new RealSyncLockFactory(new object());
+      var transitionGuardFactory = new StateTransitionGuardFactory();
+      
       _expiration = TimeSpan.FromSeconds(0.5);
       _refreshDuration = TimeSpan.FromSeconds(0.25);
-      _traceLogger = new ConsoleTraceLogger(_systemClock);
-      _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-      _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
-      _transitionGuardFactory = new StateTransitionGuardFactory();
-      _sut = new DepartmentsProjectionSystem(
-        _expiration,
-        _projectionDataService,
-        _traceLogger,
-        _stateSyncLockFactory,
-        _createProjectionLockFactory,
-        _updateProjectionLockFactory,
-        _transitionGuardFactory,
-        _taskScheduler);
+      _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, systemClock, traceLogger);
+      _sut = new DepartmentsProjectionSystemFactory(stateSyncLockFactory, traceLogger).Create(
+        new UninitialisedState<Department>(transitionGuardFactory),
+        new CurrentState<Department>(transitionGuardFactory, _expiration, taskScheduler),
+        new ExpiredState<Department>(transitionGuardFactory),
+        new UpdatingState<Department>(transitionGuardFactory, _projectionDataService, updateProjectionLockFactory, taskScheduler),
+        new CreatingState<Department>(transitionGuardFactory, _projectionDataService, createProjectionLockFactory));
     }
 
     [Test]
@@ -70,26 +54,26 @@ namespace ProjectionSystem.Samples.Departments {
 
     [Test]
     public void WhenInitialising_Refreshes_ThenReturnsCurrentItems() {
-      var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
-      var query2 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      var query1 = _sut.GetLatestProjectionTime();
+      var query2 = _sut.GetLatestProjectionTime();
       Assert.That(query1, Is.EqualTo(query2), "While still in current mode, the projection system should return the cached projection.");
     }
 
     [Test]
     public void WhenInitialised_RefreshesWhenExpirationPasses() {
-      var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      var query1 = _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
-      var query2 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      var query2 = _sut.GetLatestProjectionTime();
       Assert.That(query1, Is.EqualTo(query2), "While still in updating mode, the projection system should return the expired projection.");
     }
 
     [Test]
     public void WhenInitialised_RefreshesWhenExpirationPasses_AndReturnsNewProjectionWhenRefreshed() {
-      var query1 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      var query1 = _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
-      _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime); // Trigger update
+      _sut.GetLatestProjectionTime(); // Trigger update
       Thread.Sleep(_expiration.Add(_refreshDuration).Add(_refreshDuration)); // Wait until refresh is certainly finished
-      var query3 = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+      var query3 = _sut.GetLatestProjectionTime();
       Assert.That(query3, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
     }
 
@@ -100,7 +84,7 @@ namespace ProjectionSystem.Samples.Departments {
       for (var i = 0; i < 3; i++)
         threads.Add(new Thread(() => {
           try {
-            var projectionTime = _sut.GetProjectedDepartments().Max(dep => dep.ProjectionTime);
+            var projectionTime = _sut.GetLatestProjectionTime();
             if (previous.HasValue) Assert.That(projectionTime, Is.EqualTo(previous));
             previous = projectionTime;
           } catch (Exception ex) {
@@ -113,7 +97,7 @@ namespace ProjectionSystem.Samples.Departments {
 
     [Test]
     public void StressTestThreadSafety() {
-      _sut.GetProjectedDepartments(); // Make sure projection is current
+      _sut.GetLatestProjectionTime(); // Make sure projection is current
       var watch = Stopwatch.StartNew();
       var threads = new List<Thread> {
         new Thread(() => {
@@ -121,7 +105,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 25) {
               Thread.Sleep(50);
-              _sut.GetProjectedDepartments();
+              _sut.GetLatestProjectionTime();
               j++;
             }
           } catch (Exception ex) {
@@ -133,7 +117,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 11) {
               Thread.Sleep(100);
-              _sut.GetProjectedDepartments();
+              _sut.GetLatestProjectionTime();
               j++;
             }
           } catch (Exception ex) {
@@ -145,7 +129,7 @@ namespace ProjectionSystem.Samples.Departments {
             var j = 0;
             while (j < 8) {
               Thread.Sleep(150);
-              _sut.GetProjectedDepartments();
+              _sut.GetLatestProjectionTime();
               j++;
             }
           } catch (Exception ex) {

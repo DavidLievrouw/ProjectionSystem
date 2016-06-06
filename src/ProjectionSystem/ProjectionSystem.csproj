@@ -65,7 +65,6 @@
     <Compile Include="IProjectionDataService.cs" />
     <Compile Include="IProjectedItem.cs" />
     <Compile Include="IProjectionSystem.cs" />
-    <Compile Include="States\Transitions\IStateTransitioner.cs" />
     <Compile Include="ISyncLock.cs" />
     <Compile Include="ISyncLockFactory.cs" />
     <Compile Include="States\CurrentState.cs" />
