@@ -66,6 +66,8 @@
     <Compile Include="IProjectedItem.cs" />
     <Compile Include="IProjectionSystem.cs" />
     <Compile Include="IProjectionSystemStateSwitcher.cs" />
+    <Compile Include="ISyncLock.cs" />
+    <Compile Include="ISyncLockFactory.cs" />
     <Compile Include="States\CurrentState.cs" />
     <Compile Include="States\UninitialisedState.cs" />
     <Compile Include="States\ExpiredState.cs" />
@@ -75,6 +77,8 @@
     <Compile Include="States\StateId.cs" />
     <Compile Include="ProjectionSystem.cs" />
     <Compile Include="States\ProjectionSystemState.cs" />
+    <Compile Include="SyncLock.cs" />
+    <Compile Include="SyncLockFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

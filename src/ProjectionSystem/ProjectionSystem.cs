@@ -13,19 +13,22 @@ namespace ProjectionSystem {
     readonly IProjectionSystemState<TItem> _expiredState;
     readonly IProjectionSystemState<TItem> _updatingState;
     readonly IProjectionSystemState<TItem> _creatingState;
-    readonly object _stateLock;
     readonly ITraceLogger _traceLogger;
+    readonly ISyncLockFactory _stateLockFactory;
+    readonly object _stateLockObj;
 
-    public ProjectionSystem(TimeSpan timeout, IProjectionDataService<TItem> projectionDataService, ITraceLogger traceLogger) {
+    public ProjectionSystem(TimeSpan timeout, IProjectionDataService<TItem> projectionDataService, ITraceLogger traceLogger, ISyncLockFactory stateLockFactory) {
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (traceLogger == null) throw new ArgumentNullException(nameof(traceLogger));
+      if (stateLockFactory == null) throw new ArgumentNullException(nameof(stateLockFactory));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
-      _creatingState = new CreatingState<TItem>(projectionDataService);
+      _creatingState = new CreatingState<TItem>(projectionDataService, stateLockFactory);
       _currentState = new CurrentState<TItem>(timeout);
       _expiredState = new ExpiredState<TItem>();
-      _updatingState = new UpdatingState<TItem>(projectionDataService);
+      _updatingState = new UpdatingState<TItem>(projectionDataService, stateLockFactory);
       _traceLogger = traceLogger;
-      _stateLock = new object();
+      _stateLockFactory = stateLockFactory;
+      _stateLockObj = new object();
 
       State = new UninitialisedState<TItem>();
     }
@@ -36,7 +39,7 @@ namespace ProjectionSystem {
     }
 
     public void SwitchToExpiredState() {
-      lock (_stateLock) {
+      using (_stateLockFactory.CreateFor(_stateLockObj)) {
         var previousState = State;
         State = _expiredState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
@@ -46,7 +49,7 @@ namespace ProjectionSystem {
     }
 
     public void SwitchToCreatingState() {
-      lock (_stateLock) {
+      using (_stateLockFactory.CreateFor(_stateLockObj)) {
         var previousState = State;
         State = _creatingState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
@@ -56,7 +59,7 @@ namespace ProjectionSystem {
     }
 
     public void SwitchToUpdatingState() {
-      lock (_stateLock) {
+      using (_stateLockFactory.CreateFor(_stateLockObj)) {
         var previousState = State;
         State = _updatingState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");
@@ -66,7 +69,7 @@ namespace ProjectionSystem {
     }
 
     public void SwitchToCurrentState() {
-      lock (_stateLock) {
+      using (_stateLockFactory.CreateFor(_stateLockObj)) {
         var previousState = State;
         State = _currentState;
         _traceLogger.Verbose($"Entering '{State.Id}' state.");

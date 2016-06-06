@@ -6,13 +6,16 @@ namespace ProjectionSystem.States {
   public class UpdatingState<TItem> : ProjectionSystemState<TItem>
     where TItem : IProjectedItem {
     readonly IProjectionDataService<TItem> _projectionDataService;
-    readonly object _syncRoot;
+    readonly ISyncLockFactory _syncLockFactory;
+    readonly object _updateProjectionLockObj;
     IEnumerable<TItem> _projectedData;
 
-    public UpdatingState(IProjectionDataService<TItem> projectionDataService) {
+    public UpdatingState(IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory) {
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
+      if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       _projectionDataService = projectionDataService;
-      _syncRoot = new object();
+      _syncLockFactory = syncLockFactory;
+      _updateProjectionLockObj = new object();
     }
 
     public override StateId Id => StateId.Updating;
@@ -27,7 +30,7 @@ namespace ProjectionSystem.States {
 
       Task.Factory.StartNew(() => {
         // Make sure only one update action is done at a time
-        lock (_syncRoot) {
+        using (_syncLockFactory.CreateFor(_updateProjectionLockObj)) {
           _projectionDataService.RefreshProjection();
           _projectedData = _projectionDataService.GetProjection();
         }

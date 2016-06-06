@@ -6,17 +6,21 @@ using ProjectionSystem.States;
 
 namespace ProjectionSystem.Samples.Departments {
   public class DepartmentsProjectionSystem : ProjectionSystem<Department> {
-    readonly object _syncRoot;
+    readonly ISyncLockFactory _syncLockFactory;
+    readonly object _updateStateLockObj;
 
     public DepartmentsProjectionSystem(
       TimeSpan expiration,
       IProjectionDataService<Department> departmentsProjectionDataService,
-      ITraceLogger traceLogger) : base(expiration, departmentsProjectionDataService, traceLogger) {
-      _syncRoot = new object();
+      ITraceLogger traceLogger,
+      ISyncLockFactory syncLockFactory) : base(expiration, departmentsProjectionDataService, traceLogger, syncLockFactory) {
+      if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
+      _syncLockFactory = syncLockFactory;
+      _updateStateLockObj = new object();
     }
 
     public IEnumerable<Department> GetProjectedDepartments() {
-      lock (_syncRoot) {
+      using (_syncLockFactory.CreateFor(_updateStateLockObj)) {
         if (State.Id == StateId.Uninitialised) SwitchToCreatingState();
         if (State.Id == StateId.Expired) SwitchToUpdatingState();
       }

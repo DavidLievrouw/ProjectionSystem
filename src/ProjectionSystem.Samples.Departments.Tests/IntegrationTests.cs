@@ -12,6 +12,7 @@ namespace ProjectionSystem.Samples.Departments {
     DepartmentsProjectionSystem _sut;
     DepartmentsProjectionDataService _projectionDataService;
     RealSystemClock _systemClock;
+    SyncLockFactory _syncLockFactory;
     TimeSpan _expiration;
     TimeSpan _refreshDuration;
     ConsoleTraceLogger _traceLogger;
@@ -22,8 +23,9 @@ namespace ProjectionSystem.Samples.Departments {
       _expiration = TimeSpan.FromSeconds(0.5);
       _refreshDuration = TimeSpan.FromSeconds(0.25);
       _traceLogger = new ConsoleTraceLogger(_systemClock);
+      _syncLockFactory = new SyncLockFactory();
       _projectionDataService = new DepartmentsProjectionDataService(_refreshDuration, _systemClock, _traceLogger);
-      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger);
+      _sut = new DepartmentsProjectionSystem(_expiration, _projectionDataService, _traceLogger, _syncLockFactory);
     }
 
     [Test]
