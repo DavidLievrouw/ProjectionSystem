@@ -4,7 +4,7 @@ using ProjectionSystem.Samples.Departments.Items;
 using ProjectionSystem.States;
 
 namespace ProjectionSystem.Samples.Departments {
-  public class DepartmentsProjectionSystemFactory : IDepartmentsProjectionSystemFactory {
+  public class DepartmentsProjectionSystemFactory {
     readonly ISyncLockFactory _stateLockFactory;
     readonly ITraceLogger _traceLogger;
 
