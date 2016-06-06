@@ -6,9 +6,9 @@ using NUnit.Framework;
 using ProjectionSystem.IntegrationTests.Items;
 using ProjectionSystem.States;
 
-namespace ProjectionSystem.IntegrationTests {
+namespace ProjectionSystem.IntegrationTests.ThreadSafety {
   [TestFixture(Category = "Integration")]
-  public class IntegrationTests {
+  public class ThreadSafetyIntegrationTests {
     TimeSpan _expiration;
     TimeSpan _updateDuration;
     Model.ProjectionDataServiceForTest _projectionDataService;
