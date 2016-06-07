@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 
 namespace ProjectionSystem.States {
   public abstract class State : IState {
-    public abstract Task Prepare(IProjectionSystem projectionSysten);
-    public abstract Task Enter(IProjectionSystem projectionSysten);
+    public abstract bool IsTransitionAllowed(StateId? previousState);
+    public abstract Task Prepare(IProjectionSystem projectionSystem);
+    public abstract Task Enter(IProjectionSystem projectionSystem);
     public abstract StateId Id { get; }
   }
 

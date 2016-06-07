@@ -4,10 +4,8 @@ using ProjectionSystem.States;
 
 namespace ProjectionSystem {
   public interface IProjectionSystem {
-    Task TransitionToExpiredState();
-    Task TransitionToCreatingState();
-    Task TransitionToUpdatingState();
-    Task TransitionToCurrentState();
+    Task InvalidateProjection();
+    Task MarkProjectionAsUpToDate();
   }
 
   public interface IProjectionSystem<TItem> : IProjectionSystem
