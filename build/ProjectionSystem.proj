@@ -34,6 +34,16 @@
 			 Targets="UnitTest"
 			 BuildInParallel="false"/>
   </Target>
+  <Target Name="IntegrationTest">
+    <MSBuild Projects="$(RestorePackagesScriptDirectory)\restorepackages.proj;"
+			 StopOnFirstFailure="true"
+			 Targets="RestorePackages"
+			 BuildInParallel="false"/>
+    <MSBuild Projects="$(TestScriptDirectory)\integrationtest.proj;"
+			 StopOnFirstFailure="true"
+			 Targets="IntegrationTest"
+			 BuildInParallel="false"/>
+  </Target>
   
   <Target Name="BuildDeploy">
     <CallTarget Targets="Build" />
