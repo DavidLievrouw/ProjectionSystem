@@ -67,27 +67,31 @@
     <Compile Include="IProjectionSystem.cs" />
     <Compile Include="ISyncLock.cs" />
     <Compile Include="ISyncLockFactory.cs" />
+    <Compile Include="States\CreatingStateFactory.cs" />
     <Compile Include="States\CurrentState.cs" />
+    <Compile Include="States\CurrentStateFactory.cs" />
+    <Compile Include="States\ExpiredStateFactory.cs" />
+    <Compile Include="States\IStateFactory.cs" />
     <Compile Include="States\Transitions\InvalidStateTransitionException.cs" />
     <Compile Include="States\Transitions\IStateTransitionGuardFactory.cs" />
     <Compile Include="States\Transitions\IStateTransitionGuard.cs" />
     <Compile Include="States\Transitions\IStateTransitionOrchestrator.cs" />
-    <Compile Include="States\Transitions\IStateTransitionOrchestratorFactory.cs" />
     <Compile Include="States\Transitions\LoggingTransitionOrchestrator.cs" />
     <Compile Include="States\Transitions\StateTransitionGuardFactory.cs" />
     <Compile Include="States\Transitions\StateTransitionGuard.cs" />
     <Compile Include="States\Transitions\StateTransitionOrchestrator.cs" />
-    <Compile Include="States\Transitions\StateTransitionOrchestratorFactory.cs" />
     <Compile Include="States\UninitialisedState.cs" />
     <Compile Include="States\ExpiredState.cs" />
     <Compile Include="States\IState.cs" />
     <Compile Include="States\CreatingState.cs" />
+    <Compile Include="States\UninitialisedStateFactory.cs" />
     <Compile Include="States\UpdatingState.cs" />
     <Compile Include="States\StateId.cs" />
     <Compile Include="ProjectionSystem.cs" />
     <Compile Include="States\State.cs" />
     <Compile Include="RealSyncLock.cs" />
     <Compile Include="RealSyncLockFactory.cs" />
+    <Compile Include="States\UpdatingStateFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

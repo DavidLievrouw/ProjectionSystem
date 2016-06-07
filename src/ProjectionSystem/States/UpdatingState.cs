@@ -6,15 +6,18 @@ using System.Threading.Tasks;
 namespace ProjectionSystem.States {
   public class UpdatingState<TItem> : State<TItem>
     where TItem : IProjectedItem {
+    readonly IProjectionSystem<TItem> _projectionSystem;
     readonly IProjectionDataService<TItem> _projectionDataService;
     readonly ISyncLockFactory _syncLockFactory;
     readonly TaskScheduler _taskScheduler;
     IEnumerable<TItem> _projectedData;
 
-    public UpdatingState(IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory, TaskScheduler taskScheduler) {
+    public UpdatingState(IProjectionSystem<TItem> projectionSystem, IProjectionDataService<TItem> projectionDataService, ISyncLockFactory syncLockFactory, TaskScheduler taskScheduler) {
+      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       if (projectionDataService == null) throw new ArgumentNullException(nameof(projectionDataService));
       if (syncLockFactory == null) throw new ArgumentNullException(nameof(syncLockFactory));
       if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
+      _projectionSystem = projectionSystem;
       _projectionDataService = projectionDataService;
       _syncLockFactory = syncLockFactory;
       _taskScheduler = taskScheduler;
@@ -26,14 +29,11 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && previousState.Value == StateId.Expired;
     }
 
-    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      _projectedData = await projectionSystem.State.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
+    public override async Task BeforeEnter() {
+      _projectedData = await _projectionSystem.State.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
     }
 
-    public override async Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-
+    public override async Task AfterEnter() {
       // Update asynchronously so that other threads receive the previous projection and don't wait for the update
       await Task.Factory.StartNew(async () => {
         // Make sure only one update action is done at a time
@@ -42,7 +42,7 @@ namespace ProjectionSystem.States {
           _projectedData = await _projectionDataService.GetProjection();
         }
 
-        await projectionSystem.MarkProjectionAsUpToDate();
+        await _projectionSystem.MarkProjectionAsUpToDate();
       }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
     }
 

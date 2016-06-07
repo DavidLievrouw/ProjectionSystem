@@ -3,13 +3,10 @@ using System.Threading.Tasks;
 
 namespace ProjectionSystem.States.Transitions {
   public class StateTransitionOrchestrator<TItem> : IStateTransitionOrchestrator<TItem> where TItem : IProjectedItem {
-    readonly IProjectionSystem _projectionSystem;
     readonly IStateTransitionGuardFactory _stateTransitionGuardFactory;
 
-    public StateTransitionOrchestrator(IProjectionSystem projectionSystem, IStateTransitionGuardFactory stateTransitionGuardFactory) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+    public StateTransitionOrchestrator(IStateTransitionGuardFactory stateTransitionGuardFactory) {
       if (stateTransitionGuardFactory == null) throw new ArgumentNullException(nameof(stateTransitionGuardFactory));
-      _projectionSystem = projectionSystem;
       _stateTransitionGuardFactory = stateTransitionGuardFactory;
     }
 
@@ -19,9 +16,9 @@ namespace ProjectionSystem.States.Transitions {
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(state);
       transitionGuard.StateTransitionAllowed(CurrentState);
 
-      await state.BeforeEnter(_projectionSystem);
+      await state.BeforeEnter();
       CurrentState = state;
-      await state.AfterEnter(_projectionSystem);
+      await state.AfterEnter();
     }
 
     public async Task TransitionToState(IState state) {

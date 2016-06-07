@@ -20,12 +20,12 @@ namespace ProjectionSystem.IntegrationTests {
       var transitionGuardFactory = new StateTransitionGuardFactory();
 
       return new ProjectionSystem<Department>(
-        new StateTransitionOrchestratorFactory<Department>(transitionGuardFactory, traceLogger), 
-        new UninitialisedState<Department>(),
-        new CreatingState<Department>(projectionDataService, createProjectionLockFactory),
-        new CurrentState<Department>(expiration, taskScheduler),
-        new ExpiredState<Department>(),
-        new UpdatingState<Department>(projectionDataService, updateProjectionLockFactory, taskScheduler),
+        new LoggingTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
+        new UninitialisedStateFactory<Department>(),
+        new CreatingStateFactory<Department>(projectionDataService, createProjectionLockFactory),
+        new CurrentStateFactory<Department>(expiration, taskScheduler),
+        new ExpiredStateFactory<Department>(),
+        new UpdatingStateFactory<Department>(projectionDataService, updateProjectionLockFactory, taskScheduler),
         getProjectionLockFactory);
     }
 

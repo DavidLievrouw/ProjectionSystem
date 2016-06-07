@@ -5,7 +5,13 @@ using System.Threading.Tasks;
 namespace ProjectionSystem.States {
   public class ExpiredState<TItem> : State<TItem>
     where TItem : IProjectedItem {
+    readonly IProjectionSystem<TItem> _projectionSystem;
     IEnumerable<TItem> _projectedData;
+
+    public ExpiredState(IProjectionSystem<TItem> projectionSystem) {
+      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
+      _projectionSystem = projectionSystem;
+    }
 
     public override StateId Id => StateId.Expired;
 
@@ -13,12 +19,11 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && previousState.Value == StateId.Current;
     }
 
-    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      _projectedData = await projectionSystem.State.GetProjection();
+    public override async Task BeforeEnter() {
+      _projectedData = await _projectionSystem.State.GetProjection();
     }
 
-    public override Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task AfterEnter() {
       return Task.FromResult(true); // Noop
     }
 

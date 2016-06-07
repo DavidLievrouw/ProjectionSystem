@@ -7,13 +7,16 @@ using System.Threading.Tasks;
 namespace ProjectionSystem.States {
   public class CurrentState<TItem> : State<TItem>
     where TItem : IProjectedItem {
+    readonly IProjectionSystem<TItem> _projectionSystem;
     readonly TimeSpan _timeout;
     readonly TaskScheduler _taskScheduler;
     IEnumerable<TItem> _projectedData;
 
-    public CurrentState(TimeSpan timeout, TaskScheduler taskScheduler) {
+    public CurrentState(IProjectionSystem<TItem> projectionSystem, TimeSpan timeout, TaskScheduler taskScheduler) {
+      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       if (taskScheduler == null) throw new ArgumentNullException(nameof(taskScheduler));
       if (timeout <= TimeSpan.Zero) throw new ArgumentException("An invalid projection timeout has been specified.", nameof(timeout));
+      _projectionSystem = projectionSystem;
       _timeout = timeout;
       _taskScheduler = taskScheduler;
     }
@@ -25,18 +28,15 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && allowedPreviousStates.Contains(previousState.Value);
     }
 
-    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-      _projectedData = await projectionSystem.State.GetProjection(); // Get the projection that was created or updated
+    public override async Task BeforeEnter() {
+      _projectedData = await _projectionSystem.State.GetProjection(); // Get the projection that was created or updated
     }
 
-    public override async Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
-      if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
-
+    public override async Task AfterEnter() {
       // Expire after the specified amount of time
       await Task.Factory.StartNew(async () => {
         await Task.Delay(_timeout);
-        await projectionSystem.InvalidateProjection();
+        await _projectionSystem.InvalidateProjection();
       }, CancellationToken.None, TaskCreationOptions.None, _taskScheduler);
     }
 

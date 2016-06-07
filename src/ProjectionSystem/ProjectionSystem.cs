@@ -15,28 +15,28 @@ namespace ProjectionSystem {
     readonly ISyncLockFactory _getProjectionLockFactory;
 
     public ProjectionSystem(
-      IStateTransitionOrchestratorFactory<TItem> stateTransitionOrchestratorFactory,
-      IState<TItem> uninitialisedState,
-      IState<TItem> creatingState,
-      IState<TItem> currentState,
-      IState<TItem> expiredState,
-      IState<TItem> updatingState,
+      IStateTransitionOrchestrator<TItem> stateTransitionOrchestrator,
+      IStateFactory<TItem> uninitialisedStateFactory,
+      IStateFactory<TItem> creatingStateFactory,
+      IStateFactory<TItem> currentStateFactory,
+      IStateFactory<TItem> expiredStateFactory,
+      IStateFactory<TItem> updatingStateFactory,
       ISyncLockFactory getProjectionLockFactory) {
-      if (stateTransitionOrchestratorFactory == null) throw new ArgumentNullException(nameof(stateTransitionOrchestratorFactory));
-      if (uninitialisedState == null) throw new ArgumentNullException(nameof(uninitialisedState));
-      if (creatingState == null) throw new ArgumentNullException(nameof(creatingState));
-      if (currentState == null) throw new ArgumentNullException(nameof(currentState));
-      if (expiredState == null) throw new ArgumentNullException(nameof(expiredState));
-      if (updatingState == null) throw new ArgumentNullException(nameof(updatingState));
+      if (stateTransitionOrchestrator == null) throw new ArgumentNullException(nameof(stateTransitionOrchestrator));
+      if (uninitialisedStateFactory == null) throw new ArgumentNullException(nameof(uninitialisedStateFactory));
+      if (creatingStateFactory == null) throw new ArgumentNullException(nameof(creatingStateFactory));
+      if (currentStateFactory == null) throw new ArgumentNullException(nameof(currentStateFactory));
+      if (expiredStateFactory == null) throw new ArgumentNullException(nameof(expiredStateFactory));
+      if (updatingStateFactory == null) throw new ArgumentNullException(nameof(updatingStateFactory));
       if (getProjectionLockFactory == null) throw new ArgumentNullException(nameof(getProjectionLockFactory));
-      _creatingState = creatingState;
-      _currentState = currentState;
-      _expiredState = expiredState;
-      _updatingState = updatingState;
+      _stateTransitionOrchestrator = stateTransitionOrchestrator;
+      _creatingState = creatingStateFactory.Create(this);
+      _currentState = currentStateFactory.Create(this);
+      _expiredState = expiredStateFactory.Create(this);
+      _updatingState = updatingStateFactory.Create(this);
       _getProjectionLockFactory = getProjectionLockFactory;
 
-      _stateTransitionOrchestrator = stateTransitionOrchestratorFactory.CreateFor(this);
-      _stateTransitionOrchestrator.TransitionToState(uninitialisedState);
+      _stateTransitionOrchestrator.TransitionToState(uninitialisedStateFactory.Create(this));
     }
 
     public async Task InvalidateProjection() {
