@@ -83,6 +83,8 @@
     <Compile Include="ModelsForTest\Department.cs" />
     <Compile Include="ModelsForTest\PhoneType.cs" />
     <Compile Include="ProjectionSystemTests.cs" />
+    <Compile Include="RealSyncLockFactoryTests.cs" />
+    <Compile Include="RealSyncLockTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
