@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using DavidLievrouw.Utils;
 using ProjectionSystem.Diagnostics;
 
@@ -57,7 +58,10 @@ namespace ProjectionSystem.IntegrationTests {
     #endregion
 
     static void WriteEntry(ILogEntry entry) {
+      var line = $"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}";
+      Debug.WriteLine($"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}");
       Console.WriteLine($"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}");
+      Console.Out.Flush();
     }
   }
 }

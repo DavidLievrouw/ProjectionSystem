@@ -39,6 +39,10 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       Assert.That(query1, Is.Not.Null);
       Assert.That(_sut.State, Is.InstanceOf<ValidState<Department>>());
 
+      var query2 = await _sut.GetLatestProjectionTime();
+      Assert.That(query2, Is.Not.Null);
+      Assert.That(query1, Is.EqualTo(query2), "The previous projection should be returned during the Updating state.");
+
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
       Assert.That(_sut.State, Is.InstanceOf<ExpiredState<Department>>());
     }
@@ -56,6 +60,10 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       var query1 = await _sut.GetLatestProjectionTime(); // Trigger update
       Assert.That(query1, Is.Not.Null);
       Assert.That(_sut.State, Is.InstanceOf<UpdatingState<Department>>());
+
+      var query2 = await _sut.GetLatestProjectionTime();
+      Assert.That(query2, Is.Not.Null);
+      Assert.That(query1, Is.EqualTo(query2), "The previous projection should be returned during the Updating state.");
 
       Thread.Sleep(_updateDuration); // Wait for update to finish
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
