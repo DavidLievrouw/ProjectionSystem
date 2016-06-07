@@ -125,7 +125,7 @@ namespace ProjectionSystem.States {
         var startTime = DateTimeOffset.UtcNow;
         await _sut.AfterEnter();
 
-        Thread.Sleep(_timeout); // Wait until certainly finished
+        Thread.Sleep(_timeout.Add(_timeout)); // Wait until certainly finished
 
         A.CallTo(() => _projectionSystem.InvalidateProjection()).MustHaveHappened();
         Assert.That(callTime - startTime, Is.GreaterThanOrEqualTo(_timeout));

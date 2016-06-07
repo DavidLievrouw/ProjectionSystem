@@ -21,7 +21,7 @@ namespace ProjectionSystem.States.Transitions {
       await state.AfterEnter();
     }
 
-    public async Task TransitionToState(IState state) {
+    async Task IStateTransitionOrchestrator.TransitionToState(IState state) {
       if (state == null) throw new ArgumentNullException(nameof(state));
       var typedState = state as IState<TItem>;
       if (typedState == null) throw new ArgumentException($"The {GetType().Name} cannot transition to a {state.GetType().Name}.", nameof(state));

@@ -31,10 +31,12 @@ namespace ProjectionSystem.States.Transitions {
     public class TransitionToState : StateTransitionOrchestratorTests {
       IState _state;
       IStateTransitionGuard _transitionGuard;
+      new IStateTransitionOrchestrator _sut;
 
       [SetUp]
       public override void SetUp() {
         base.SetUp();
+        _sut = (IStateTransitionOrchestrator)base._sut;
         _state = A.Fake<IState<Department>>();
         _transitionGuard = _transitionGuard.Fake();
         A.CallTo(() => _stateTransitionGuardFactory.CreateFor(_state)).Returns(_transitionGuard);
