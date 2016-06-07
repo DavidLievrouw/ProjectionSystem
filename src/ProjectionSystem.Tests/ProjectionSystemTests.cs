@@ -196,6 +196,30 @@ namespace ProjectionSystem {
         var actual = await _sut.GetProjection();
         Assert.That(actual, Is.EqualTo(_expectedProjection));
       }
+
+      [Test]
+      public async Task GetsProjectionWithinThreadLock() {
+        var hasLock = false;
+        var isLockedDuringProjectionFetching = false;
+
+        var syncLock = A.Fake<ISyncLock>();
+        A.CallTo(() => syncLock.Dispose())
+          .Invokes(() => hasLock = false);
+        A.CallTo(() => _getProjectionLockFactory.Create())
+          .Invokes(() => hasLock = true)
+          .Returns(syncLock);
+
+        A.CallTo(() => _stateTransitionOrchestrator.CurrentState).Returns(_validState);
+        A.CallTo(() => _validState.GetProjection())
+          .Invokes(() => isLockedDuringProjectionFetching = hasLock)
+          .Returns(_expectedProjection);
+
+        var actual = await _sut.GetProjection();
+
+        Assert.That(isLockedDuringProjectionFetching, Is.True, "The thread did not own the lock at the time of the projection fetching.");
+        Assert.That(hasLock, Is.False, "The lock should be released after the call.");
+        Assert.That(actual, Is.EqualTo(_expectedProjection));
+      }
     }
 
     [TestFixture]
