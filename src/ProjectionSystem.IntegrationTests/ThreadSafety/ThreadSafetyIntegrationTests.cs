@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using ProjectionSystem.IntegrationTests.Items;
 using ProjectionSystem.States;
+using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.IntegrationTests.ThreadSafety {
   [TestFixture(Category = "Integration")]
@@ -81,9 +82,18 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       var query1 = await _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
       await _sut.GetLatestProjectionTime(); // Trigger update
-      Thread.Sleep(_expiration.Add(_updateDuration).Add(_updateDuration)); // Wait until refresh is certainly finished
+      Thread.Sleep(_expiration.Add(_updateDuration).Add(_updateDuration)); // Wait until update is certainly finished
       var query3 = await _sut.GetLatestProjectionTime();
       Assert.That(query3, Is.GreaterThan(query1), "After updating, the projection system should return the new projection.");
+    }
+
+    [Test]
+    public async Task WhenInvalidatingDuringAnUpdate_DoesSomething() {
+      await _sut.GetLatestProjectionTime();
+      Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire
+      await _sut.GetLatestProjectionTime(); // Trigger update
+      Thread.Sleep(TimeSpan.FromMilliseconds(_updateDuration.TotalMilliseconds / 2)); // Updating now
+      Assert.ThrowsAsync<InvalidStateTransitionException>(() => _sut.InvalidateProjection()); // Mark as Expired during Updating state
     }
 
     [Test]
