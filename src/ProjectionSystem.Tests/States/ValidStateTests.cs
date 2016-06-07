@@ -107,7 +107,9 @@ namespace ProjectionSystem.States {
       [SetUp]
       public override void SetUp() {
         base.SetUp();
-        _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext(); // Use real scheduler here, 
+
+        // Use real scheduler here, see http://blog.stephencleary.com/2013/08/startnew-is-dangerous.html (Task.Factory.StartNew does not understand async delegates)
+        _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext(); 
         _sut = new ValidState<Department>(_projectionSystem, _timeout, _taskScheduler);
       }
 
