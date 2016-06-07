@@ -9,7 +9,7 @@ using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.IntegrationTests.ThreadSafety {
   [TestFixture(Category = "Integration")]
-  public class ThreadSafetyIntegrationTests {
+  public class ThreadSafetyAndFlowIntegrationTests {
     TimeSpan _expiration;
     TimeSpan _updateDuration;
     Model.ProjectionDataServiceForTest _projectionDataService;

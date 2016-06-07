@@ -71,7 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleTraceLogger.cs" />
-    <Compile Include="ThreadSafety\ThreadSafetyIntegrationTests.cs" />
+    <Compile Include="ThreadSafety\ThreadSafetyAndFlowIntegrationTests.cs" />
     <Compile Include="Items\Department.cs" />
     <Compile Include="Items\PhoneType.cs" />
     <Compile Include="Model.cs" />
