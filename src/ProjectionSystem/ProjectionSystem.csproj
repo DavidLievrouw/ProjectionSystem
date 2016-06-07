@@ -76,7 +76,7 @@
     <Compile Include="States\Transitions\IStateTransitionGuardFactory.cs" />
     <Compile Include="States\Transitions\IStateTransitionGuard.cs" />
     <Compile Include="States\Transitions\IStateTransitionOrchestrator.cs" />
-    <Compile Include="States\Transitions\LoggingTransitionOrchestrator.cs" />
+    <Compile Include="States\Transitions\LoggingStateTransitionOrchestrator.cs" />
     <Compile Include="States\Transitions\StateTransitionGuardFactory.cs" />
     <Compile Include="States\Transitions\StateTransitionGuard.cs" />
     <Compile Include="States\Transitions\StateTransitionOrchestrator.cs" />

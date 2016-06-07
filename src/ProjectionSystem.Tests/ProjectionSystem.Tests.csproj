@@ -85,6 +85,10 @@
     <Compile Include="ProjectionSystemTests.cs" />
     <Compile Include="RealSyncLockFactoryTests.cs" />
     <Compile Include="RealSyncLockTests.cs" />
+    <Compile Include="States\Transitions\StateTransitionOrchestratorTests.cs" />
+    <Compile Include="States\Transitions\LoggingStateTransitionOrchestratorTests.cs" />
+    <Compile Include="States\Transitions\StateTransitionGuardFactoryTests.cs" />
+    <Compile Include="States\Transitions\StateTransitionGuardTests.cs" />
     <Compile Include="States\UninitialisedStateTests.cs" />
     <Compile Include="States\ExpiredStateTests.cs" />
     <Compile Include="States\ValidStateTests.cs" />

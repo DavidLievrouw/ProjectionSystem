@@ -20,7 +20,7 @@ namespace ProjectionSystem.IntegrationTests {
       var transitionGuardFactory = new StateTransitionGuardFactory();
 
       return new ProjectionSystem<Department>(
-        new LoggingTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
+        new LoggingStateTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
         new UninitialisedStateFactory<Department>(),
         new CreatingStateFactory<Department>(projectionDataService, createProjectionLockFactory),
         new ValidStateFactory<Department>(expiration, taskScheduler),
