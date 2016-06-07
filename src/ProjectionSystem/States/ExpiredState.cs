@@ -16,7 +16,7 @@ namespace ProjectionSystem.States {
     public override StateId Id => StateId.Expired;
 
     public override bool IsTransitionAllowed(StateId? previousState) {
-      return previousState.HasValue && previousState.Value == StateId.Current;
+      return previousState.HasValue && previousState.Value == StateId.Valid;
     }
 
     public override async Task BeforeEnter() {

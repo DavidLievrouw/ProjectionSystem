@@ -68,8 +68,8 @@
     <Compile Include="ISyncLock.cs" />
     <Compile Include="ISyncLockFactory.cs" />
     <Compile Include="States\CreatingStateFactory.cs" />
-    <Compile Include="States\CurrentState.cs" />
-    <Compile Include="States\CurrentStateFactory.cs" />
+    <Compile Include="States\ValidState.cs" />
+    <Compile Include="States\ValidStateFactory.cs" />
     <Compile Include="States\ExpiredStateFactory.cs" />
     <Compile Include="States\IStateFactory.cs" />
     <Compile Include="States\Transitions\InvalidStateTransitionException.cs" />

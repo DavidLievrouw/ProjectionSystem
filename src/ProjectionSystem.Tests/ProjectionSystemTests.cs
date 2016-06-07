@@ -58,7 +58,7 @@ namespace ProjectionSystem {
 
       ConfigureState_ToHaveStateId(_uninitialisedState, StateId.Uninitialised);
       ConfigureState_ToHaveStateId(_creatingState, StateId.Creating);
-      ConfigureState_ToHaveStateId(_upToDateState, StateId.Current);
+      ConfigureState_ToHaveStateId(_upToDateState, StateId.Valid);
       ConfigureState_ToHaveStateId(_expiredState, StateId.Expired);
       ConfigureState_ToHaveStateId(_updatingState, StateId.Updating);
 
@@ -156,7 +156,7 @@ namespace ProjectionSystem {
       }
 
       [Test]
-      public async Task WhenCurrentStateIsUninitialised_TransitionsToCreatingStateFirst() {
+      public async Task WhenStateIsUninitialised_TransitionsToCreatingStateFirst() {
         var currentState = _uninitialisedState;
         A.CallTo(() => _stateTransitionOrchestrator.CurrentState).ReturnsLazily(() => currentState);
         A.CallTo(() => _creatingState.GetProjection()).Returns(_expectedProjection);
@@ -173,7 +173,7 @@ namespace ProjectionSystem {
       }
 
       [Test]
-      public async Task WhenCurrentStateIsExpired_TransitionsToUpdatingStateFirst() {
+      public async Task WhenStateIsExpired_TransitionsToUpdatingStateFirst() {
         var currentState = _expiredState;
         A.CallTo(() => _stateTransitionOrchestrator.CurrentState).ReturnsLazily(() => currentState);
         A.CallTo(() => _updatingState.GetProjection()).Returns(_expectedProjection);
@@ -190,7 +190,7 @@ namespace ProjectionSystem {
       }
 
       [Test]
-      public async Task ReturnsProjectionFromCurrentState() {
+      public async Task ReturnsProjectionFromState() {
         A.CallTo(() => _stateTransitionOrchestrator.CurrentState).Returns(_updatingState);
         A.CallTo(() => _updatingState.GetProjection()).Returns(_expectedProjection);
         var actual = await _sut.GetProjection();

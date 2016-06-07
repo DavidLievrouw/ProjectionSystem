@@ -37,7 +37,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       
       var query1 = await _sut.GetLatestProjectionTime();
       Assert.That(query1, Is.Not.Null);
-      Assert.That(_sut.State, Is.InstanceOf<CurrentState<Department>>());
+      Assert.That(_sut.State, Is.InstanceOf<ValidState<Department>>());
 
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25)));
       Assert.That(_sut.State, Is.InstanceOf<ExpiredState<Department>>());
@@ -63,10 +63,10 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
     }
 
     [Test]
-    public async Task WhenInitialising_Refreshes_ThenReturnsCurrentItems() {
-      var query1 = await _sut.GetLatestProjectionTime();
-      var query2 = await _sut.GetLatestProjectionTime();
-      Assert.That(query1, Is.EqualTo(query2), "While still in current mode, the projection system should return the cached projection.");
+    public async Task WhenInitialising_CreatesProjection_ThenReturnsCurrentItems() {
+      var query1 = await _sut.GetLatestProjectionTime(); // Create projection
+      var query2 = await _sut.GetLatestProjectionTime(); // Still in valid state
+      Assert.That(query1, Is.EqualTo(query2), "The projection system should return the cached projection, when in Valid state.");
     }
 
     [Test]
@@ -116,7 +116,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
 
     [Test]
     public async Task StressTestThreadSafety() {
-      await _sut.GetLatestProjectionTime(); // Make sure projection is current
+      await _sut.GetLatestProjectionTime(); // Make sure projection is valid
       var tasks = new List<Task> {
         new Task(async () => {
           try {

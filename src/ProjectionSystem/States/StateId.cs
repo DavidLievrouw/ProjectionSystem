@@ -3,7 +3,7 @@
     Uninitialised,
     Creating,
     Updating,
-    Current,
+    Valid,
     Expired
   }
 }

@@ -23,7 +23,7 @@ namespace ProjectionSystem.IntegrationTests {
         new LoggingTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
         new UninitialisedStateFactory<Department>(),
         new CreatingStateFactory<Department>(projectionDataService, createProjectionLockFactory),
-        new CurrentStateFactory<Department>(expiration, taskScheduler),
+        new ValidStateFactory<Department>(expiration, taskScheduler),
         new ExpiredStateFactory<Department>(),
         new UpdatingStateFactory<Department>(projectionDataService, updateProjectionLockFactory, taskScheduler),
         getProjectionLockFactory);
