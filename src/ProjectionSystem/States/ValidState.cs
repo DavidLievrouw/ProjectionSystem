@@ -29,7 +29,8 @@ namespace ProjectionSystem.States {
     }
 
     public override async Task BeforeEnter() {
-      _projectedData = await _projectionSystem.State.GetProjection().ConfigureAwait(false); // Get the projection that was created or updated
+      // Get the projection that was created or updated
+      _projectedData = await _projectionSystem.State.GetProjection().ConfigureAwait(false); 
     }
 
     public override async Task AfterEnter() {
