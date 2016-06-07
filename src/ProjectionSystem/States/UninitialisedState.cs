@@ -10,11 +10,11 @@ namespace ProjectionSystem.States {
       return !previousState.HasValue;
     }
 
-    public override Task Prepare(IProjectionSystem<TItem> projectionSystem) {
+    public override Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
       return Task.FromResult(true); // Noop
     }
 
-    public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
       return Task.FromResult(true); // Noop
     }
 

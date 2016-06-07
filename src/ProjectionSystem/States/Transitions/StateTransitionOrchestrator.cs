@@ -24,9 +24,9 @@ namespace ProjectionSystem.States.Transitions {
       transitionGuard.StateTransitionAllowed(CurrentState);
 
       _traceLogger.Verbose($"Entering '{state.Id}' state.");
-      await state.Prepare(_projectionSystem);
+      await state.BeforeEnter(_projectionSystem);
       CurrentState = state;
-      await state.Enter(_projectionSystem);
+      await state.AfterEnter(_projectionSystem);
       _traceLogger.Verbose($"Entered '{state.Id}' state.");
     }
 

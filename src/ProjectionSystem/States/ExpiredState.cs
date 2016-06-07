@@ -13,12 +13,12 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && previousState.Value == StateId.Current;
     }
 
-    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       _projectedData = await projectionSystem.State.GetProjection();
     }
 
-    public override Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
       return Task.FromResult(true); // Noop
     }
 

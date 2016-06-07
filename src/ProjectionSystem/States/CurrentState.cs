@@ -25,12 +25,12 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && allowedPreviousStates.Contains(previousState.Value);
     }
 
-    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       _projectedData = await projectionSystem.State.GetProjection(); // Get the projection that was created or updated
     }
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
 
       // Expire after the specified amount of time

@@ -22,7 +22,7 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && previousState.Value == StateId.Uninitialised;
     }
 
-    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
 
       // Make sure only one update action is done at a time
@@ -32,7 +32,7 @@ namespace ProjectionSystem.States {
       }
     }
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       await projectionSystem.MarkProjectionAsUpToDate();
     }

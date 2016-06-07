@@ -26,12 +26,12 @@ namespace ProjectionSystem.States {
       return previousState.HasValue && previousState.Value == StateId.Expired;
     }
 
-    public override async Task Prepare(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task BeforeEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
       _projectedData = await projectionSystem.State.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
     }
 
-    public override async Task Enter(IProjectionSystem<TItem> projectionSystem) {
+    public override async Task AfterEnter(IProjectionSystem<TItem> projectionSystem) {
       if (projectionSystem == null) throw new ArgumentNullException(nameof(projectionSystem));
 
       // Update asynchronously so that other threads receive the previous projection and don't wait for the update
