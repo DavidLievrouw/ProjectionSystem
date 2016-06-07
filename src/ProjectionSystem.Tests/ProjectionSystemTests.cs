@@ -17,14 +17,14 @@ namespace ProjectionSystem {
     IStateTransitionOrchestrator<Department> _stateTransitionOrchestrator;
     IStateFactory<Department> _uninitialisedStateFactory;
     IStateFactory<Department> _creatingStateFactory;
-    IStateFactory<Department> _upToDateStateFactory;
+    IStateFactory<Department> _validStateFactory;
     IStateFactory<Department> _expiredStateFactory;
     IStateFactory<Department> _updatingStateFactory;
     ISyncLockFactory _getProjectionLockFactory;
     ProjectionSystem<Department> _sut;
     IState<Department> _uninitialisedState;
     IState<Department> _creatingState;
-    IState<Department> _upToDateState;
+    IState<Department> _validState;
     IState<Department> _expiredState;
     IState<Department> _updatingState;
     IReturnValueArgumentValidationConfiguration<Task> _initialiseStateCall;
@@ -35,14 +35,14 @@ namespace ProjectionSystem {
       _stateTransitionOrchestrator = _stateTransitionOrchestrator.Fake();
       _uninitialisedStateFactory = _uninitialisedStateFactory.Fake();
       _creatingStateFactory = _creatingStateFactory.Fake();
-      _upToDateStateFactory = _upToDateStateFactory.Fake();
+      _validStateFactory = _validStateFactory.Fake();
       _expiredStateFactory = _expiredStateFactory.Fake();
       _updatingStateFactory = _updatingStateFactory.Fake();
       _getProjectionLockFactory = _getProjectionLockFactory.Fake();
 
       _uninitialisedState = _uninitialisedState.Fake();
       _creatingState = _creatingState.Fake();
-      _upToDateState = _upToDateState.Fake();
+      _validState = _validState.Fake();
       _expiredState = _expiredState.Fake();
       _updatingState = _updatingState.Fake();
 
@@ -52,13 +52,13 @@ namespace ProjectionSystem {
 
       ConfigureStateFactory_ToReturnState(_uninitialisedStateFactory, _uninitialisedState);
       ConfigureStateFactory_ToReturnState(_creatingStateFactory, _creatingState);
-      ConfigureStateFactory_ToReturnState(_upToDateStateFactory, _upToDateState);
+      ConfigureStateFactory_ToReturnState(_validStateFactory, _validState);
       ConfigureStateFactory_ToReturnState(_expiredStateFactory, _expiredState);
       ConfigureStateFactory_ToReturnState(_updatingStateFactory, _updatingState);
 
       ConfigureState_ToHaveStateId(_uninitialisedState, StateId.Uninitialised);
       ConfigureState_ToHaveStateId(_creatingState, StateId.Creating);
-      ConfigureState_ToHaveStateId(_upToDateState, StateId.Valid);
+      ConfigureState_ToHaveStateId(_validState, StateId.Valid);
       ConfigureState_ToHaveStateId(_expiredState, StateId.Expired);
       ConfigureState_ToHaveStateId(_updatingState, StateId.Updating);
 
@@ -66,7 +66,7 @@ namespace ProjectionSystem {
         _stateTransitionOrchestrator,
         _uninitialisedStateFactory,
         _creatingStateFactory,
-        _upToDateStateFactory,
+        _validStateFactory,
         _expiredStateFactory,
         _updatingStateFactory,
         _getProjectionLockFactory);
@@ -95,7 +95,7 @@ namespace ProjectionSystem {
           _stateTransitionOrchestrator,
           _uninitialisedStateFactory,
           _creatingStateFactory,
-          _upToDateStateFactory,
+          _validStateFactory,
           _expiredStateFactory,
           _updatingStateFactory,
           _getProjectionLockFactory));
@@ -117,7 +117,7 @@ namespace ProjectionSystem {
           _stateTransitionOrchestrator,
           _uninitialisedStateFactory,
           _creatingStateFactory,
-          _upToDateStateFactory,
+          _validStateFactory,
           _expiredStateFactory,
           _updatingStateFactory,
           _getProjectionLockFactory);
@@ -139,9 +139,9 @@ namespace ProjectionSystem {
     [TestFixture]
     public class MarkProjectionAsUpToDate : ProjectionSystemTests {
       [Test]
-      public async Task TriggersTransitionToUpToDateState() {
+      public async Task TriggersTransitionToValidState() {
         await _sut.MarkProjectionAsUpToDate();
-        A.CallTo(() => _stateTransitionOrchestrator.TransitionToState(_upToDateState)).MustHaveHappened();
+        A.CallTo(() => _stateTransitionOrchestrator.TransitionToState(_validState)).MustHaveHappened();
       }
     }
 
