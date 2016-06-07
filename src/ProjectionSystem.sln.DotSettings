@@ -328,7 +328,9 @@ public void $Method$() {&#xD;
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=805A4A8B50202F44B27CFD7C777EE003/Reformat/@EntryValue">True</s:Boolean>
 	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=805A4A8B50202F44B27CFD7C777EE003/Shortcut/@EntryValue">testclass</s:String>
 	<s:Boolean x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=805A4A8B50202F44B27CFD7C777EE003/ShortenQualifiedReferences/@EntryValue">True</s:Boolean>
-	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=805A4A8B50202F44B27CFD7C777EE003/Text/@EntryValue">using NUnit.Framework;&#xD;
+	<s:String x:Key="/Default/PatternsAndTemplates/LiveTemplates/Template/=805A4A8B50202F44B27CFD7C777EE003/Text/@EntryValue">using DavidLievrouw.Utils.ForTesting.FluentAssertions;&#xD;
+using FluentAssertions;&#xD;
+using NUnit.Framework;&#xD;
 &#xD;
 namespace $Namespace$ {&#xD;
   [TestFixture]&#xD;
@@ -339,6 +341,14 @@ namespace $Namespace$ {&#xD;
     [SetUp]&#xD;
     public virtual void SetUp() {&#xD;
       _sut = new $Class$();&#xD;
+    }&#xD;
+&#xD;
+    [TestFixture]&#xD;
+    public class Construction : $Class$Tests {&#xD;
+      [Test]&#xD;
+      public void HasExactlyOneConstructor_WithNoOptionalParameters() {&#xD;
+        _sut.Should().HaveExactlyOneConstructorWithoutOptionalParameters();&#xD;
+      }&#xD;
     }&#xD;
   }&#xD;
 }</s:String>
