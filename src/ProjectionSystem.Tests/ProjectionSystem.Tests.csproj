@@ -85,6 +85,7 @@
     <Compile Include="ProjectionSystemTests.cs" />
     <Compile Include="RealSyncLockFactoryTests.cs" />
     <Compile Include="RealSyncLockTests.cs" />
+    <Compile Include="States\UpdatingStateTests.cs" />
     <Compile Include="States\CreatingStateTests.cs" />
     <Compile Include="States\UpdatingStateFactoryTests.cs" />
     <Compile Include="States\UninitialisedStateFactoryTests.cs" />

@@ -85,7 +85,7 @@ namespace ProjectionSystem.States {
       }
 
       [Test]
-      public async Task UpdatesAndAddsProjectionInLock() {
+      public async Task UpdatesAndFetchesProjectionInLock() {
         var hasLock = false;
         var isLockedDuringProjectionUpdating = false;
         var isLockedDuringProjectionFetching = false;
