@@ -35,8 +35,9 @@ namespace ProjectionSystem.States {
     public override async Task AfterEnter() {
       // Expire after the specified amount of time
       await Task.Factory.StartNew(async () => {
-        await Task.Delay(_timeout);
-        await _projectionSystem.InvalidateProjection();
+        await Task
+          .Delay(_timeout)
+          .ContinueWith(previous => _projectionSystem.InvalidateProjection());
       }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
     }
 

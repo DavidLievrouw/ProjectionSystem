@@ -59,8 +59,9 @@ namespace ProjectionSystem.IntegrationTests {
 
     static void WriteEntry(ILogEntry entry) {
       var line = $"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}";
-      Debug.WriteLine($"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}");
-      Console.WriteLine($"{entry.DateTimeUtc.ToLocalTime().ToString("HH:mm:ss")} ({entry.Severity}) > {entry.Data}");
+      Debug.WriteLine(line);
+      Debug.Flush();
+      Console.WriteLine(line);
       Console.Out.Flush();
     }
   }

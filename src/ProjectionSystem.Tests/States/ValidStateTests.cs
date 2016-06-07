@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils.ForTesting.FakeItEasy;
 using FakeItEasy;
@@ -11,8 +12,13 @@ namespace ProjectionSystem.States {
   public class ValidStateTests {
     IProjectionSystem<Department> _projectionSystem;
     TimeSpan _timeout;
-    DeterministicTaskScheduler _taskScheduler;
+    TaskScheduler _taskScheduler;
     ValidState<Department> _sut;
+
+    [OneTimeSetUp]
+    public void OneTimeSetUp() {
+      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
+    }
 
     [SetUp]
     public virtual void SetUp() {
@@ -98,18 +104,25 @@ namespace ProjectionSystem.States {
 
     [TestFixture]
     public class AfterEnter : ValidStateTests {
+      [SetUp]
+      public override void SetUp() {
+        base.SetUp();
+        _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext(); // Use real scheduler here, 
+        _sut = new ValidState<Department>(_projectionSystem, _timeout, _taskScheduler);
+      }
+
       [Test]
-      public void AfterDelay_MarksAsExpired() {
+      public async Task AfterDelay_MarksAsExpired() {
         var callTime = DateTimeOffset.MinValue;
         A.CallTo(() => _projectionSystem.InvalidateProjection())
           .Invokes(fakeCall => callTime = DateTimeOffset.UtcNow)
           .Returns(Task.FromResult(true));
-
-        // Execute all tasks on the current thread and wait for idle
-        var startTime = DateTimeOffset.UtcNow;
-        var afterEnterTask = _sut.AfterEnter();
-        _taskScheduler.RunTasksUntilIdle();
         
+        var startTime = DateTimeOffset.UtcNow;
+        await _sut.AfterEnter();
+
+        Thread.Sleep(_timeout); // Wait until certainly finished
+
         A.CallTo(() => _projectionSystem.InvalidateProjection()).MustHaveHappened();
         Assert.That(callTime - startTime, Is.GreaterThanOrEqualTo(_timeout));
       }
