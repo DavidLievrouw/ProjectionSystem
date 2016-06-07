@@ -80,6 +80,9 @@
     <Compile Include="Diagnostics\PlainTextEntryFormatterTests.cs" />
     <Compile Include="Diagnostics\TraceEventTypeAdapterTests.cs" />
     <Compile Include="Diagnostics\TraceLoggerTests.cs" />
+    <Compile Include="ModelsForTest\Department.cs" />
+    <Compile Include="ModelsForTest\PhoneType.cs" />
+    <Compile Include="ProjectionSystemTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

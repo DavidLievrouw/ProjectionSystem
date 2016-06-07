@@ -36,7 +36,9 @@ namespace ProjectionSystem {
       _updatingState = updatingStateFactory.Create(this);
       _getProjectionLockFactory = getProjectionLockFactory;
 
-      _stateTransitionOrchestrator.TransitionToState(uninitialisedStateFactory.Create(this));
+      var initialisationTask = _stateTransitionOrchestrator
+        .TransitionToState(uninitialisedStateFactory.Create(this));
+      if (!initialisationTask.IsCompleted) initialisationTask.RunSynchronously();
     }
 
     public async Task InvalidateProjection() {
@@ -57,12 +59,12 @@ namespace ProjectionSystem {
 
     public IState<TItem> State => _stateTransitionOrchestrator.CurrentState;
 
-    async Task TransitionToCreatingState() {
-      await _stateTransitionOrchestrator.TransitionToState(_creatingState);
+    Task TransitionToCreatingState() {
+      return _stateTransitionOrchestrator.TransitionToState(_creatingState);
     }
 
-    async Task TransitionToUpdatingState() {
-      await _stateTransitionOrchestrator.TransitionToState(_updatingState);
+    Task TransitionToUpdatingState() {
+      return _stateTransitionOrchestrator.TransitionToState(_updatingState);
     }
   }
 }
