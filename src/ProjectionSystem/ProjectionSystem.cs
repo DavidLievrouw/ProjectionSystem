@@ -42,18 +42,18 @@ namespace ProjectionSystem {
     }
 
     public async Task InvalidateProjection() {
-      await _stateTransitionOrchestrator.TransitionToState(_expiredState);
+      await _stateTransitionOrchestrator.TransitionToState(_expiredState).ConfigureAwait(false);
     }
 
     public async Task MarkProjectionAsUpToDate() {
-      await _stateTransitionOrchestrator.TransitionToState(_validState);
+      await _stateTransitionOrchestrator.TransitionToState(_validState).ConfigureAwait(false);
     }
 
     public async Task<IEnumerable<TItem>> GetProjection() {
-      using (await _getProjectionLockFactory.Create()) {
-        if (State.Id == StateId.Uninitialised) await TransitionToCreatingState();
-        if (State.Id == StateId.Expired) await TransitionToUpdatingState();
-        return await State.GetProjection();
+      using (await _getProjectionLockFactory.Create().ConfigureAwait(false)) {
+        if (State.Id == StateId.Uninitialised) await TransitionToCreatingState().ConfigureAwait(false);
+        if (State.Id == StateId.Expired) await TransitionToUpdatingState().ConfigureAwait(false);
+        return await State.GetProjection().ConfigureAwait(false);
       }
     }
 

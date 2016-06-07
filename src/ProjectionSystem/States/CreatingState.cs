@@ -27,19 +27,19 @@ namespace ProjectionSystem.States {
 
     public override async Task BeforeEnter() {
       // Make sure only one update action is done at a time
-      using (await _syncLockFactory.Create()) {
-        await _projectionDataService.UpdateProjection();
-        _projectedData = await _projectionDataService.GetProjection();
+      using (await _syncLockFactory.Create().ConfigureAwait(false)) {
+        await _projectionDataService.UpdateProjection().ConfigureAwait(false);
+        _projectedData = await _projectionDataService.GetProjection().ConfigureAwait(false);
       }
     }
 
     public override async Task AfterEnter() {
-      await _projectionSystem.MarkProjectionAsUpToDate();
+      await _projectionSystem.MarkProjectionAsUpToDate().ConfigureAwait(false);
     }
 
     public override async Task<IEnumerable<TItem>> GetProjection() {
       // Do not allow querying of the data, until creation is finished
-      using (await _syncLockFactory.Create()) {
+      using (await _syncLockFactory.Create().ConfigureAwait(false)) {
         return _projectedData;
       }
     }

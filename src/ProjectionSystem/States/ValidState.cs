@@ -29,7 +29,7 @@ namespace ProjectionSystem.States {
     }
 
     public override async Task BeforeEnter() {
-      _projectedData = await _projectionSystem.State.GetProjection(); // Get the projection that was created or updated
+      _projectedData = await _projectionSystem.State.GetProjection().ConfigureAwait(false); // Get the projection that was created or updated
     }
 
     public override async Task AfterEnter() {
@@ -37,8 +37,10 @@ namespace ProjectionSystem.States {
       await Task.Factory.StartNew(async () => {
         await Task
           .Delay(_timeout)
-          .ContinueWith(previous => _projectionSystem.InvalidateProjection());
-      }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
+          .ContinueWith(previous => _projectionSystem.InvalidateProjection())
+          .ConfigureAwait(false);
+      }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler)
+      .ConfigureAwait(false);
     }
 
     public override Task<IEnumerable<TItem>> GetProjection() {

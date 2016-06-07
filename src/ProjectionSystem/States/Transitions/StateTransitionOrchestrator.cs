@@ -16,16 +16,16 @@ namespace ProjectionSystem.States.Transitions {
       var transitionGuard = _stateTransitionGuardFactory.CreateFor(state);
       transitionGuard.StateTransitionAllowed(CurrentState);
 
-      await state.BeforeEnter();
+      await state.BeforeEnter().ConfigureAwait(false);
       CurrentState = state;
-      await state.AfterEnter();
+      await state.AfterEnter().ConfigureAwait(false);
     }
 
     async Task IStateTransitionOrchestrator.TransitionToState(IState state) {
       if (state == null) throw new ArgumentNullException(nameof(state));
       var typedState = state as IState<TItem>;
       if (typedState == null) throw new ArgumentException($"The {GetType().Name} cannot transition to a {state.GetType().Name}.", nameof(state));
-      await TransitionToState(typedState);
+      await TransitionToState(typedState).ConfigureAwait(false);
     }
 
     public IState<TItem> CurrentState { get; private set; }

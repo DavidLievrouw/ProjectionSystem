@@ -20,7 +20,7 @@ namespace ProjectionSystem.States {
     }
 
     public override async Task BeforeEnter() {
-      _projectedData = await _projectionSystem.State.GetProjection();
+      _projectedData = await _projectionSystem.State.GetProjection().ConfigureAwait(false);
     }
 
     public override Task AfterEnter() {

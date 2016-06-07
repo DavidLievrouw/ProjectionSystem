@@ -84,7 +84,7 @@ namespace ProjectionSystem.IntegrationTests {
       public async Task UpdateProjection() {
         // Fake update the projection
         _traceLogger.Verbose("Refreshing projection...");
-        await Task.Delay(_updateDuration);
+        await Task.Delay(_updateDuration).ConfigureAwait(false);
         foreach (var department in _projection) {
           department.ProjectionTime = _systemClock.UtcNow;
         }

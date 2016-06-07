@@ -30,20 +30,22 @@ namespace ProjectionSystem.States {
     }
 
     public override async Task BeforeEnter() {
-      _projectedData = await _projectionSystem.State.GetProjection(); // Keep track of the expired projection, so that subscribers can access it during the update
+      // Keep track of the expired projection, so that subscribers can access it during the update
+      _projectedData = await _projectionSystem.State.GetProjection().ConfigureAwait(false); 
     }
 
     public override async Task AfterEnter() {
       // Update asynchronously so that other threads receive the previous projection and don't wait for the update
       await Task.Factory.StartNew(async () => {
         // Make sure only one update action is done at a time
-        using (await _syncLockFactory.Create()) {
-          await _projectionDataService.UpdateProjection();
-          _projectedData = await _projectionDataService.GetProjection();
+        using (await _syncLockFactory.Create().ConfigureAwait(false)) {
+          await _projectionDataService.UpdateProjection().ConfigureAwait(false);
+          _projectedData = await _projectionDataService.GetProjection().ConfigureAwait(false);
         }
 
-        await _projectionSystem.MarkProjectionAsUpToDate();
-      }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler);
+        await _projectionSystem.MarkProjectionAsUpToDate().ConfigureAwait(false);
+      }, CancellationToken.None, TaskCreationOptions.LongRunning, _taskScheduler)
+      .ConfigureAwait(false);
     }
 
     public override Task<IEnumerable<TItem>> GetProjection() {

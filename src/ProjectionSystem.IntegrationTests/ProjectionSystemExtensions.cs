@@ -8,7 +8,7 @@ namespace ProjectionSystem.IntegrationTests {
     public static async Task<DateTimeOffset?> GetLatestProjectionTime(this IProjectionSystem<Department> projectionSystem) {
       return projectionSystem == null
         ? new DateTimeOffset?()
-        : (await projectionSystem.GetProjection()).Max(dep => dep.ProjectionTime);
+        : (await projectionSystem.GetProjection().ConfigureAwait(false)).Max(dep => dep.ProjectionTime);
     }
   }
 }

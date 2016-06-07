@@ -12,7 +12,7 @@ namespace ProjectionSystem {
     }
 
     public async Task Lock() {
-      await _semaphore.WaitAsync();
+      await _semaphore.WaitAsync().ConfigureAwait(false);
     }
 
     public void Dispose() {

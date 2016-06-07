@@ -13,7 +13,7 @@ namespace ProjectionSystem {
 
     public async Task<ISyncLock> Create() {
       var realLock = new RealSyncLock(_semaphore);
-      await realLock.Lock();
+      await realLock.Lock().ConfigureAwait(false);
       return realLock;
     }
   }

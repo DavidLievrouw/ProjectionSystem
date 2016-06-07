@@ -18,14 +18,14 @@ namespace ProjectionSystem.States.Transitions {
     public async Task TransitionToState(IState state) {
       if (state == null) throw new ArgumentNullException(nameof(state));
       _traceLogger.Verbose($"Entering '{state.Id}' state.");
-      await _inner.TransitionToState(state);
+      await _inner.TransitionToState(state).ConfigureAwait(false);
       _traceLogger.Verbose($"Entered '{state.Id}' state.");
     }
 
     public async Task TransitionToState(IState<TItem> state) {
       if (state == null) throw new ArgumentNullException(nameof(state));
       _traceLogger.Verbose($"Entering '{state.Id}' state.");
-      await _inner.TransitionToState(state);
+      await _inner.TransitionToState(state).ConfigureAwait(false);
       _traceLogger.Verbose($"Entered '{state.Id}' state.");
     }
     
