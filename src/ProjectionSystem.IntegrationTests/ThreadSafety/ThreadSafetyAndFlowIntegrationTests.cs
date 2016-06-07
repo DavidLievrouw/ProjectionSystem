@@ -121,10 +121,36 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
         new Task(async () => {
           try {
             var j = 0;
+            while (j < 100) {
+              await Task.Delay(TimeSpan.FromMilliseconds(6.25));
+              await _sut.GetLatestProjectionTime();
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T1 > Done iteration {j+1}.");
+              j++;
+            }
+          } catch (Exception ex) {
+            Assert.Fail(ex.ToString());
+          }
+        }, TaskCreationOptions.LongRunning),
+        new Task(async () => {
+          try {
+            var j = 0;
+            while (j < 100) {
+              await Task.Delay(TimeSpan.FromMilliseconds(12.5));
+              await _sut.GetLatestProjectionTime();
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T2 > Done iteration {j+1}.");
+              j++;
+            }
+          } catch (Exception ex) {
+            Assert.Fail(ex.ToString());
+          }
+        }, TaskCreationOptions.LongRunning),
+        new Task(async () => {
+          try {
+            var j = 0;
             while (j < 50) {
               await Task.Delay(25);
               await _sut.GetLatestProjectionTime();
-              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T1 > Done iteration {j+1}.");
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T3 > Done iteration {j+1}.");
               j++;
             }
           } catch (Exception ex) {
@@ -137,7 +163,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
             while (j < 25) {
               await Task.Delay(50);
               await _sut.GetLatestProjectionTime();
-              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T2 > Done iteration {j+1}.");
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T4 > Done iteration {j+1}.");
               j++;
             }
           } catch (Exception ex) {
@@ -150,7 +176,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
             while (j < 11) {
               await Task.Delay(100);
               await _sut.GetLatestProjectionTime();
-              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T3 > Done iteration {j+1}.");
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T5 > Done iteration {j+1}.");
               j++;
             }
           } catch (Exception ex) {
@@ -163,7 +189,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
             while (j < 8) {
               await Task.Delay(150);
               await _sut.GetLatestProjectionTime();
-              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T4 > Done iteration {j+1}.");
+              Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss,fff")} T6 > Done iteration {j+1}.");
               j++;
             }
           } catch (Exception ex) {
