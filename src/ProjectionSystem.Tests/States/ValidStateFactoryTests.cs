@@ -8,6 +8,7 @@ using ProjectionSystem.ModelsForTest;
 namespace ProjectionSystem.States {
   [TestFixture]
   public class ValidStateFactoryTests {
+    ISleeper _sleeper;
     TimeSpan _timeout;
     TaskScheduler _taskScheduler;
     ValidStateFactory<Department> _sut;
@@ -19,26 +20,28 @@ namespace ProjectionSystem.States {
 
     [SetUp]
     public virtual void SetUp() {
+      _sleeper = _sleeper.Fake();
       _timeout = TimeSpan.FromMinutes(1);
       _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
-      _sut = new ValidStateFactory<Department>(_timeout, _taskScheduler);
+      _sut = new ValidStateFactory<Department>(_timeout, _sleeper, _taskScheduler);
     }
 
     [TestFixture]
     public class Construction : ValidStateFactoryTests {
       [Test]
       public void HasExactlyOneConstructor_WithNoOptionalParameters() {
-        Assert.Throws<ArgumentNullException>(() => new ValidStateFactory<Department>(_timeout, null));
+        Assert.Throws<ArgumentNullException>(() => new ValidStateFactory<Department>(_timeout, _sleeper, null));
+        Assert.Throws<ArgumentNullException>(() => new ValidStateFactory<Department>(_timeout, null, _taskScheduler));
       }
 
       [Test]
       public void ZeroTimeout_Throws() {
-        Assert.Throws<ArgumentException>(() => new ValidStateFactory<Department>(TimeSpan.Zero, _taskScheduler));
+        Assert.Throws<ArgumentException>(() => new ValidStateFactory<Department>(TimeSpan.Zero, _sleeper, _taskScheduler));
       }
 
       [Test]
       public void NegativeTimeout_Throws() {
-        Assert.Throws<ArgumentException>(() => new ValidStateFactory<Department>(TimeSpan.FromSeconds(-1), _taskScheduler));
+        Assert.Throws<ArgumentException>(() => new ValidStateFactory<Department>(TimeSpan.FromSeconds(-1), _sleeper, _taskScheduler));
       }
     }
 

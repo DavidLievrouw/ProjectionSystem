@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using DavidLievrouw.Utils.ForTesting.FakeItEasy;
 using FakeItEasy;
@@ -11,39 +10,37 @@ namespace ProjectionSystem.States {
   [TestFixture]
   public class ValidStateTests {
     IProjectionSystem<Department> _projectionSystem;
+    ISleeper _sleeper;
     TimeSpan _timeout;
-    TaskScheduler _taskScheduler;
+    DeterministicTaskScheduler _taskScheduler;
     ValidState<Department> _sut;
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp() {
-      SynchronizationContext.SetSynchronizationContext(new SynchronizationContext());
-    }
 
     [SetUp]
     public virtual void SetUp() {
       _projectionSystem = _projectionSystem.Fake();
       _timeout = TimeSpan.FromMilliseconds(200);
+      _sleeper = _sleeper.Fake();
       _taskScheduler = new DeterministicTaskScheduler();
-      _sut = new ValidState<Department>(_projectionSystem, _timeout, _taskScheduler);
+      _sut = new ValidState<Department>(_projectionSystem, _timeout, _sleeper, _taskScheduler);
     }
 
     [TestFixture]
     public class Construction : ValidStateTests {
       [Test]
       public void HasExactlyOneConstructor_WithNoOptionalParameters() {
-        Assert.Throws<ArgumentNullException>(() => new ValidState<Department>(null, _timeout, _taskScheduler));
-        Assert.Throws<ArgumentNullException>(() => new ValidState<Department>(_projectionSystem, _timeout, null));
+        Assert.Throws<ArgumentNullException>(() => new ValidState<Department>(null, _timeout, _sleeper, _taskScheduler));
+        Assert.Throws<ArgumentNullException>(() => new ValidState<Department>(_projectionSystem, _timeout, null, _taskScheduler));
+        Assert.Throws<ArgumentNullException>(() => new ValidState<Department>(_projectionSystem, _timeout, _sleeper, null));
       }
 
       [Test]
       public void ZeroTimeout_Throws() {
-        Assert.Throws<ArgumentException>(() => new ValidState<Department>(_projectionSystem, TimeSpan.Zero, _taskScheduler));
+        Assert.Throws<ArgumentException>(() => new ValidState<Department>(_projectionSystem, TimeSpan.Zero, _sleeper, _taskScheduler));
       }
 
       [Test]
       public void NegativeTimeout_Throws() {
-        Assert.Throws<ArgumentException>(() => new ValidState<Department>(_projectionSystem, TimeSpan.FromSeconds(-1), _taskScheduler));
+        Assert.Throws<ArgumentException>(() => new ValidState<Department>(_projectionSystem, TimeSpan.FromSeconds(-1), _sleeper, _taskScheduler));
       }
     }
 
@@ -104,31 +101,27 @@ namespace ProjectionSystem.States {
 
     [TestFixture]
     public class AfterEnter : ValidStateTests {
+      TimeSpan _elapsedSleep;
+
       [SetUp]
       public override void SetUp() {
         base.SetUp();
 
-        // Use real scheduler here
-        // See http://blog.stephencleary.com/2013/08/startnew-is-dangerous.html (Task.Factory.StartNew does not understand async delegates)
-        // Also http://blog.i3arnon.com/2015/07/02/task-run-long-running/
-        _taskScheduler = TaskScheduler.FromCurrentSynchronizationContext(); 
-        _sut = new ValidState<Department>(_projectionSystem, _timeout, _taskScheduler);
+        _elapsedSleep = TimeSpan.Zero;
+        A.CallTo(() => _sleeper.Sleep(A<TimeSpan>._))
+          .WithAnyArguments()
+          .Invokes(fakeCall => _elapsedSleep += fakeCall.Arguments.Get<TimeSpan>(0))
+          .Returns(Task.FromResult(true));
       }
 
       [Test]
-      public async Task AfterDelay_MarksAsExpired() {
-        var callTime = DateTimeOffset.MinValue;
-        A.CallTo(() => _projectionSystem.InvalidateProjection())
-          .Invokes(fakeCall => callTime = DateTimeOffset.UtcNow)
-          .Returns(Task.FromResult(true));
-        
-        var startTime = DateTimeOffset.UtcNow;
-        await _sut.AfterEnter();
+      public void AfterDelay_MarksAsExpired() {
+        var afterEnterTask = _sut.AfterEnter();
+        _taskScheduler.RunTasksUntilIdle();
 
-        Thread.Sleep(_timeout.Add(_timeout)); // Wait until certainly finished
-
-        A.CallTo(() => _projectionSystem.InvalidateProjection()).MustHaveHappened();
-        Assert.That(callTime - startTime, Is.GreaterThanOrEqualTo(_timeout));
+        A.CallTo(() => _sleeper.Sleep(_timeout)).MustHaveHappened()
+          .Then(A.CallTo(() => _projectionSystem.InvalidateProjection()).MustHaveHappened());
+        Assert.That(_elapsedSleep, Is.EqualTo(_timeout));
       }
 
       [Test]

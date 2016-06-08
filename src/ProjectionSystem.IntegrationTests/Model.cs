@@ -10,7 +10,7 @@ using ProjectionSystem.States.Transitions;
 
 namespace ProjectionSystem.IntegrationTests {
   public static class Model {
-    public static IProjectionSystem<Department> Create(TimeSpan expiration, IProjectionDataService<Department> projectionDataService) {
+    public static IProjectionSystem<Department> Create(TimeSpan expiration, IProjectionDataService<Department> projectionDataService, ISleeper sleeper) {
       var systemClock = new RealSystemClock();
       var traceLogger = new ConsoleTraceLogger(systemClock);
       var taskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
@@ -18,12 +18,12 @@ namespace ProjectionSystem.IntegrationTests {
       var updateProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var getProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var transitionGuardFactory = new StateTransitionGuardFactory();
-
+      
       return new ProjectionSystem<Department>(
         new LoggingStateTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
         new UninitialisedStateFactory<Department>(),
         new CreatingStateFactory<Department>(projectionDataService, createProjectionLockFactory),
-        new ValidStateFactory<Department>(expiration, taskScheduler),
+        new ValidStateFactory<Department>(expiration, sleeper, taskScheduler),
         new ExpiredStateFactory<Department>(),
         new UpdatingStateFactory<Department>(projectionDataService, updateProjectionLockFactory, taskScheduler),
         getProjectionLockFactory);

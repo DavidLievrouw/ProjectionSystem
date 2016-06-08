@@ -65,8 +65,10 @@
     <Compile Include="IProjectionDataService.cs" />
     <Compile Include="IProjectedItem.cs" />
     <Compile Include="IProjectionSystem.cs" />
+    <Compile Include="ISleeper.cs" />
     <Compile Include="ISyncLock.cs" />
     <Compile Include="ISyncLockFactory.cs" />
+    <Compile Include="RealSleeper.cs" />
     <Compile Include="States\CreatingStateFactory.cs" />
     <Compile Include="States\ValidState.cs" />
     <Compile Include="States\ValidStateFactory.cs" />

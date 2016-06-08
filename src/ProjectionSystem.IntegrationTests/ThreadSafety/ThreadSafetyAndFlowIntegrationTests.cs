@@ -14,6 +14,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
     TimeSpan _updateDuration;
     Model.ProjectionDataServiceForTest _projectionDataService;
     IProjectionSystem<Department> _sut;
+    RealSleeper _sleeper;
 
     [OneTimeSetUp]
     public void OneTimeSetUp() {
@@ -25,7 +26,8 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       _expiration = TimeSpan.FromSeconds(0.5);
       _updateDuration = TimeSpan.FromSeconds(0.25);
       _projectionDataService = new Model.ProjectionDataServiceForTest(_updateDuration);
-      _sut = Model.Create(_expiration, _projectionDataService);
+      _sleeper = new RealSleeper();
+      _sut = Model.Create(_expiration, _projectionDataService, _sleeper);
     }
 
     [Test]
@@ -33,7 +35,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       // Reconfigure from setup
       _expiration = TimeSpan.FromSeconds(0.25);
       _updateDuration = TimeSpan.FromSeconds(0.5);
-      _sut = Model.Create(_expiration, _projectionDataService);
+      _sut = Model.Create(_expiration, _projectionDataService, _sleeper);
       
       var query1 = await _sut.GetLatestProjectionTime();
       Assert.That(query1, Is.Not.Null);
@@ -52,7 +54,7 @@ namespace ProjectionSystem.IntegrationTests.ThreadSafety {
       // Reconfigure from setup
       _expiration = TimeSpan.FromSeconds(0.25);
       _updateDuration = TimeSpan.FromSeconds(0.5);
-      _sut = Model.Create(_expiration, _projectionDataService);
+      _sut = Model.Create(_expiration, _projectionDataService, _sleeper);
 
       await _sut.GetLatestProjectionTime();
       Thread.Sleep(_expiration.Add(TimeSpan.FromSeconds(0.25))); // Expire

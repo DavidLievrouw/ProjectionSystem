@@ -83,6 +83,7 @@
     <Compile Include="ModelsForTest\Department.cs" />
     <Compile Include="ModelsForTest\PhoneType.cs" />
     <Compile Include="ProjectionSystemTests.cs" />
+    <Compile Include="RealSleeperTests.cs" />
     <Compile Include="RealSyncLockFactoryTests.cs" />
     <Compile Include="RealSyncLockTests.cs" />
     <Compile Include="States\Transitions\StateTransitionOrchestratorTests.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="States\ExpiredStateFactoryTests.cs" />
     <Compile Include="States\CreatingStateFactoryTests.cs" />
     <Compile Include="States\ValidStateFactoryTests.cs" />
+    <Compile Include="TestSleeper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
