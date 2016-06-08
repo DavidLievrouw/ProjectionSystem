@@ -100,6 +100,7 @@
     <Compile Include="States\ExpiredStateFactoryTests.cs" />
     <Compile Include="States\CreatingStateFactoryTests.cs" />
     <Compile Include="States\ValidStateFactoryTests.cs" />
+    <Compile Include="States\ValidStateTimeoutProviderTests.cs" />
     <Compile Include="TestSleeper.cs" />
   </ItemGroup>
   <ItemGroup>

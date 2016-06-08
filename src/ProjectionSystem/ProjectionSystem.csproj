@@ -69,6 +69,7 @@
     <Compile Include="ISyncLock.cs" />
     <Compile Include="ISyncLockFactory.cs" />
     <Compile Include="RealSleeper.cs" />
+    <Compile Include="States\IValidStateTimeoutProvider.cs" />
     <Compile Include="States\CreatingStateFactory.cs" />
     <Compile Include="States\ValidState.cs" />
     <Compile Include="States\ValidStateFactory.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="RealSyncLock.cs" />
     <Compile Include="RealSyncLockFactory.cs" />
     <Compile Include="States\UpdatingStateFactory.cs" />
+    <Compile Include="States\ValidStateTimeoutProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

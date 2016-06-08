@@ -18,12 +18,13 @@ namespace ProjectionSystem.IntegrationTests {
       var updateProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var getProjectionLockFactory = new RealSyncLockFactory(new SemaphoreSlim(1));
       var transitionGuardFactory = new StateTransitionGuardFactory();
-      
+      var timeoutProvider = new ValidStateTimeoutProvider<Department>(expiration);
+
       return new ProjectionSystem<Department>(
         new LoggingStateTransitionOrchestrator<Department>(new StateTransitionOrchestrator<Department>(transitionGuardFactory), traceLogger), 
         new UninitialisedStateFactory<Department>(),
         new CreatingStateFactory<Department>(projectionDataService, createProjectionLockFactory),
-        new ValidStateFactory<Department>(expiration, sleeper, taskScheduler),
+        new ValidStateFactory<Department>(timeoutProvider, sleeper, taskScheduler),
         new ExpiredStateFactory<Department>(),
         new UpdatingStateFactory<Department>(projectionDataService, updateProjectionLockFactory, taskScheduler),
         getProjectionLockFactory);
